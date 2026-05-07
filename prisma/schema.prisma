@@ -1,0 +1,57 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Prisma Schema — Restaurant App (Prisma v7+)
+// ─────────────────────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  admin
+  user
+  delivery
+}
+
+// ─── Models ──────────────────────────────────────────────────────────────────
+
+model User {
+  id                   String    @id @default(uuid()) @db.Uuid
+  firstName            String    @db.VarChar(50)
+  lastName             String    @db.VarChar(50)
+  email                String    @unique @db.VarChar(255)
+  password             String    @db.VarChar(255)
+  phonePrimary         String    @map("phone_primary") @db.VarChar(20)
+  phoneSecondary       String?   @map("phone_secondary") @db.VarChar(20)
+  address              String?   @db.Text
+  avatarUrl            String?   @map("avatar_url") @db.Text
+  avatarPublicId       String?   @map("avatar_public_id") @db.Text
+  role                 UserRole  @default(user)
+  isVerified           Boolean   @default(false) @map("is_verified")
+  resetPasswordToken   String?   @map("reset_password_token") @db.VarChar(255)
+  resetPasswordExpires DateTime? @map("reset_password_expires") @db.Timestamptz()
+  createdAt            DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt            DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
+
+  verificationCodes VerificationCode[]
+
+  @@map("users")
+}
+
+model VerificationCode {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  code       String   @db.VarChar(6)
+  expiresAt  DateTime @map("expires_at") @db.Timestamptz()
+  lastSentAt DateTime @default(now()) @map("last_sent_at") @db.Timestamptz()
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("verification_codes")
+}
