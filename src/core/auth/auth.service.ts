@@ -46,12 +46,24 @@ export class AuthService {
     const existing = await this.userRepository.findByEmail(dto.email);
     if (existing) throw new ConflictException('Email already in use');
 
+    const existingByPhonePrimary = await this.userRepository.findByPhone(
+      dto.phone_primary,
+    );
+    if (existingByPhonePrimary)
+      throw new ConflictException('Phone number already in use');
+
+    if (dto.phone_secondary) {
+      const existingByPhoneSecondary = await this.userRepository.findByPhone(
+        dto.phone_secondary,
+      );
+      if (existingByPhoneSecondary)
+        throw new ConflictException('Secondary phone number already in use');
+    }
+
     const hashedPassword = await bcrypt.hash(dto.password, SALT_ROUNDS);
     const code = this.generateOtpCode();
     const codeExpiresAt = this.getExpiryDate(OTP_EXPIRY_MINUTES);
 
-    // ── Transaction: user + verification_code atomically ─────────────────────
-    // إذا فشل إرسال الإيميل → Rollback → مفيش user بدون كود في الـ DB
     let userId = '';
 
     await this.prisma.$transaction(async (tx) => {

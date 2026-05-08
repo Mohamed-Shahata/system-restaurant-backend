@@ -25,8 +25,8 @@ model User {
   lastName             String    @db.VarChar(50)
   email                String    @unique @db.VarChar(255)
   password             String    @db.VarChar(255)
-  phonePrimary         String    @map("phone_primary") @db.VarChar(20)
-  phoneSecondary       String?   @map("phone_secondary") @db.VarChar(20)
+  phonePrimary         String    @map("phone_primary") @db.VarChar(20) @unique
+  phoneSecondary       String?   @map("phone_secondary") @db.VarChar(20) @unique
   address              String?   @db.Text
   avatarUrl            String?   @map("avatar_url") @db.Text
   avatarPublicId       String?   @map("avatar_public_id") @db.Text
