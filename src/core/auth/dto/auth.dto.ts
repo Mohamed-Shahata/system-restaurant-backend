@@ -46,16 +46,6 @@ export class RegisterDto {
   @IsString()
   @Matches(/^(\+201|01)[0-9]{9}$/, { message: 'Invalid Egyptian phone number' })
   phone_secondary?: string;
-
-  @ApiPropertyOptional({ example: '5 شارع التحرير، القاهرة' })
-  @IsOptional()
-  @IsString()
-  address?: string;
-
-  @ApiPropertyOptional({ enum: UserRole, default: UserRole.user })
-  @IsOptional()
-  @IsEnum(UserRole)
-  role?: UserRole;
 }
 
 // ─── Login ────────────────────────────────────────────────────────────────────

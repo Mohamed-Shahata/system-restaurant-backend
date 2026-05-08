@@ -63,8 +63,6 @@ export class AuthService {
           password: hashedPassword,
           phonePrimary: dto.phone_primary,
           phoneSecondary: dto.phone_secondary ?? null,
-          address: dto.address ?? null,
-          role: (dto.role as UserRole) ?? UserRole.user,
         },
       });
 
