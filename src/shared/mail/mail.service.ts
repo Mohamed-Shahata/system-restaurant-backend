@@ -18,7 +18,11 @@ export class MailService {
     });
   }
 
-  async sendVerificationCode(email: string, name: string, code: string): Promise<void> {
+  async sendVerificationCode(
+    email: string,
+    name: string,
+    code: string,
+  ): Promise<void> {
     await this.transporter.sendMail({
       from: this.configService.get<string>('mail.from'),
       to: email,
@@ -27,8 +31,12 @@ export class MailService {
     });
   }
 
-  async sendPasswordResetEmail(email: string, name: string, token: string): Promise<void> {
-    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3001'}/reset-password?token=${token}`;
+  async sendPasswordResetEmail(
+    email: string,
+    name: string,
+    token: string,
+  ): Promise<void> {
+    const resetUrl = `${process.env.FRONTEND_URL_LOCAL}/reset-password?token=${token}`;
     await this.transporter.sendMail({
       from: this.configService.get<string>('mail.from'),
       to: email,
@@ -37,8 +45,7 @@ export class MailService {
     });
   }
 
-  // ─── Email Templates ─────────────────────────────────────────────────────────
-
+  // Email Templates
   private buildVerificationTemplate(name: string, code: string): string {
     return `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; direction: rtl;">

@@ -23,9 +23,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       status = exception.getStatus();
       const res = exception.getResponse();
-      message = typeof res === 'object' && 'message' in res
-        ? (res as any).message
-        : exception.message;
+      message =
+        typeof res === 'object' && 'message' in res
+          ? (res as any).message
+          : exception.message;
     } else {
       this.logger.error('Unhandled exception', exception as Error);
     }

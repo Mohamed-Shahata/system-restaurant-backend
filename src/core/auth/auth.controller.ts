@@ -4,7 +4,6 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -18,21 +17,17 @@ import {
 import { memoryStorage } from 'multer';
 
 import { AuthService } from './auth.service.js';
-import {
-  ForgotPasswordDto,
-  LoginDto,
-  RegisterDto,
-  ResendCodeDto,
-  ResetPasswordDto,
-  VerifyEmailDto,
-} from './dto/auth.dto.js';
+import { RegisterDto } from './dto/register.dto.js';
+import { VerifyEmailDto } from './dto/verify-email.dto.js';
+import { ResendCodeDto } from './dto/resend-code.dto.js';
+import { LoginDto } from './dto/login.dto.js';
+import { ForgotPasswordDto } from './dto/forgot-password.dto.js';
+import { ResetPasswordDto } from './dto/reset-password.dto.js';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-
-  // ─── Register ────────────────────────────────────────────────────────────────
 
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
@@ -61,8 +56,6 @@ export class AuthController {
     return this.authService.register(dto);
   }
 
-  // ─── Verify Email ─────────────────────────────────────────────────────────────
-
   @Post('verify-email')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Verify email with 6-digit OTP code' })
@@ -74,8 +67,6 @@ export class AuthController {
   verifyEmail(@Body() dto: VerifyEmailDto) {
     return this.authService.verifyEmail(dto);
   }
-
-  // ─── Resend Code ──────────────────────────────────────────────────────────────
 
   @Post('resend-code')
   @HttpCode(HttpStatus.OK)
@@ -90,8 +81,6 @@ export class AuthController {
   resendCode(@Body() dto: ResendCodeDto) {
     return this.authService.resendCode(dto);
   }
-
-  // ─── Login ────────────────────────────────────────────────────────────────────
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
@@ -108,8 +97,6 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
-  // ─── Forgot Password ──────────────────────────────────────────────────────────
-
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request password reset link via email' })
@@ -121,8 +108,6 @@ export class AuthController {
   forgotPassword(@Body() dto: ForgotPasswordDto) {
     return this.authService.forgotPassword(dto);
   }
-
-  // ─── Reset Password ───────────────────────────────────────────────────────────
 
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)

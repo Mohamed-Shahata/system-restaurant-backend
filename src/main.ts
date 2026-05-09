@@ -7,19 +7,22 @@ import { GlobalExceptionFilter } from './shared/exceptions/http-exception.filter
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // ─── Global Prefix ────────────────────────────────────────────────────────────
+  // Global Prefix
   app.setGlobalPrefix('api/v1');
 
-  // ─── CORS ─────────────────────────────────────────────────────────────────────
+  // CORS
   app.enableCors({
-    origin: [process.env.FRONTEND_URL || 'http://localhost:5173'],
+    origin: [
+      process.env.FRONTEND_URL_LOCAL || 'http://localhost:5173',
+      process.env.FRONTEND_URL_PRODUCTION,
+    ],
     credentials: true,
   });
 
-  // ─── Global Exception Filter ──────────────────────────────────────────────────
+  // Global Exception Filter
   app.useGlobalFilters(new GlobalExceptionFilter());
 
-  // ─── Validation ───────────────────────────────────────────────────────────────
+  // Validation
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -28,13 +31,7 @@ async function bootstrap() {
     }),
   );
 
-  // ─── CORS ─────────────────────────────────────────────────────────────────────
-  app.enableCors({
-    origin: [process.env.FRONTEND_URL || 'http://localhost:5173'],
-    credentials: true,
-  });
-
-  // ─── Swagger ──────────────────────────────────────────────────────────────────
+  // Swagger
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Restaurant API')
     .setDescription('Restaurant management system — Auth endpoints')
@@ -50,11 +47,10 @@ async function bootstrap() {
     swaggerOptions: { persistAuthorization: true },
   });
 
-  // ─── Start ────────────────────────────────────────────────────────────────────
   const port = process.env.PORT ?? 3000;
   await app.listen(port);
-  console.log(`🚀 Server running on http://localhost:${port}/api/v1`);
-  console.log(`📚 Swagger docs at http://localhost:${port}/api/docs`);
+  console.log(`🚀 Server running on ${process.env.BACKEND_URL}/api/v1`);
+  console.log(`📚 Swagger docs at ${process.env.BACKEND_URL}/api/docs`);
 }
 
 bootstrap();
