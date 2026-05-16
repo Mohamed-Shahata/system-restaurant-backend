@@ -36,7 +36,7 @@ export class MailService {
     name: string,
     token: string,
   ): Promise<void> {
-    const resetUrl = `${process.env.FRONTEND_URL_LOCAL}/reset-password?token=${token}`;
+    const resetUrl = `${process.env.FRONTEND_URL_LOCAL}/auth/reset-password?token=${token}`;
     await this.transporter.sendMail({
       from: this.configService.get<string>('mail.from'),
       to: email,
