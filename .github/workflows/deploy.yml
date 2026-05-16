@@ -25,4 +25,4 @@ jobs:
             npx prisma generate
             npm run build
 
-            pm2 restart system-restaurant || pm2 start dist/src/main.js --name system-restaurant
+            pm2 restart system || pm2 start dist/src/main.js --name system

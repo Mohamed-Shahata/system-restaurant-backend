@@ -43,6 +43,7 @@ export class MailService {
       subject: 'إعادة تعيين كلمة المرور',
       html: this.buildResetPasswordTemplate(name, resetUrl),
     });
+    console.log(`${name} - ${resetUrl}`);
   }
 
   // Email Templates
