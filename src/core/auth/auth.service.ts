@@ -188,9 +188,11 @@ export class AuthService {
         const waitSeconds = Math.ceil(
           (RESEND_COOLDOWN_MINUTES - minutesSince) * 60,
         );
-        throw new BadRequestException(
-          `Please wait ${waitSeconds} seconds before requesting a new code`,
-        );
+        throw new BadRequestException({
+          message: `Please wait ${waitSeconds} seconds before requesting a new code`,
+          waitSeconds,
+          error: 'OTP_RATE_LIMIT',
+        });
       }
     }
 
