@@ -270,7 +270,7 @@ export class AuthService {
   public async forgotPassword(dto: ForgotPasswordDto) {
     const user = await this.userRepository.findByEmail(dto.email);
 
-    if (!user) throw new BadRequestException('this email exists');
+    if (!user) throw new BadRequestException('email not found');
 
     const resetToken = uuidv4();
     const expiresAt = this.getExpiryDate(RESET_TOKEN_EXPIRY_MINUTES);
