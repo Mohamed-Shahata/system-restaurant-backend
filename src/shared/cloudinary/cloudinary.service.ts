@@ -35,6 +35,15 @@ export class CloudinaryService implements OnModuleInit {
     });
   }
 
+  async uploadImages(
+    fileBuffers: Buffer[],
+    folder = 'restaurant/avatars',
+  ): Promise<{ url: string; publicId: string }[]> {
+    return Promise.all(
+      fileBuffers.map((buffer) => this.uploadImage(buffer, folder)),
+    );
+  }
+
   async deleteImage(publicId: string): Promise<void> {
     await cloudinary.uploader.destroy(publicId);
   }

@@ -1,32 +1,82 @@
 import { Injectable } from '@nestjs/common';
-import { User, VerificationCode } from '@prisma/client';
 import { PrismaService } from '../../../core/prisma/prisma.service.js';
+import {
+  IUser,
+  IUserRepository,
+  IVerificationCode,
+  UserRole,
+} from '../interfaces/user.interface.js';
 
 @Injectable()
-export class UserRepository {
+export class UserRepository implements IUserRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  // ─── User Queries ────────────────────────────────────────────────────────────
-
-  async findById(id: string): Promise<User | null> {
-    return this.prisma.user.findUnique({ where: { id } });
+  private map(raw: any): IUser {
+    return {
+      id: raw.id,
+      firstName: raw.firstName,
+      lastName: raw.lastName,
+      email: raw.email,
+      password: raw.password,
+      phonePrimary: raw.phonePrimary,
+      phoneSecondary: raw.phoneSecondary ?? null,
+      address: raw.address ?? null,
+      avatarUrl: raw.avatarUrl ?? null,
+      avatarPublicId: raw.avatarPublicId ?? null,
+      role: raw.role as UserRole,
+      isVerified: raw.isVerified,
+      resetPasswordToken: raw.resetPasswordToken ?? null,
+      resetPasswordExpires: raw.resetPasswordExpires ?? null,
+      createdAt: raw.createdAt,
+      updatedAt: raw.updatedAt,
+    };
   }
 
-  async findByPhone(phone: string): Promise<User | null> {
-    return this.prisma.user.findUnique({ where: { phonePrimary: phone } });
+  private mapCode(raw: any): IVerificationCode {
+    return {
+      id: raw.id,
+      userId: raw.userId,
+      code: raw.code,
+      expiresAt: raw.expiresAt,
+      lastSentAt: raw.lastSentAt,
+      createdAt: raw.createdAt,
+    };
   }
 
-  async findByEmail(email: string): Promise<User | null> {
-    return this.prisma.user.findUnique({ where: { email } });
+  // ─── User Queries ─────────────────────────────────────────────────────────
+
+  async findAll(): Promise<IUser[]> {
+    const rows = await this.prisma.user.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+    return rows.map((r) => this.map(r));
   }
 
-  async findByResetToken(token: string): Promise<User | null> {
-    return this.prisma.user.findFirst({
+  async findById(id: string): Promise<IUser | null> {
+    const row = await this.prisma.user.findUnique({ where: { id } });
+    return row ? this.map(row) : null;
+  }
+
+  async findByEmail(email: string): Promise<IUser | null> {
+    const row = await this.prisma.user.findUnique({ where: { email } });
+    return row ? this.map(row) : null;
+  }
+
+  async findByPhone(phone: string): Promise<IUser | null> {
+    const row = await this.prisma.user.findUnique({
+      where: { phonePrimary: phone },
+    });
+    return row ? this.map(row) : null;
+  }
+
+  async findByResetToken(token: string): Promise<IUser | null> {
+    const row = await this.prisma.user.findFirst({
       where: {
         resetPasswordToken: token,
         resetPasswordExpires: { gt: new Date() },
       },
     });
+    return row ? this.map(row) : null;
   }
 
   async markEmailVerified(userId: string): Promise<void> {
@@ -69,39 +119,38 @@ export class UserRepository {
     });
   }
 
-  // ─── Verification Code Queries ───────────────────────────────────────────────
+  // ─── Verification Code Queries ────────────────────────────────────────────
 
   async createVerificationCode(
     userId: string,
     code: string,
     expiresAt: Date,
-  ): Promise<VerificationCode> {
-    return this.prisma.verificationCode.create({
+  ): Promise<IVerificationCode> {
+    const row = await this.prisma.verificationCode.create({
       data: { userId, code, expiresAt },
     });
+    return this.mapCode(row);
   }
 
   async findVerificationCode(
     userId: string,
     code: string,
-  ): Promise<VerificationCode | null> {
-    return this.prisma.verificationCode.findFirst({
-      where: {
-        userId,
-        code,
-        expiresAt: { gt: new Date() },
-      },
+  ): Promise<IVerificationCode | null> {
+    const row = await this.prisma.verificationCode.findFirst({
+      where: { userId, code, expiresAt: { gt: new Date() } },
       orderBy: { createdAt: 'desc' },
     });
+    return row ? this.mapCode(row) : null;
   }
 
   async findLatestVerificationCode(
     userId: string,
-  ): Promise<VerificationCode | null> {
-    return this.prisma.verificationCode.findFirst({
+  ): Promise<IVerificationCode | null> {
+    const row = await this.prisma.verificationCode.findFirst({
       where: { userId },
       orderBy: { createdAt: 'desc' },
     });
+    return row ? this.mapCode(row) : null;
   }
 
   async deleteVerificationCodes(userId: string): Promise<void> {

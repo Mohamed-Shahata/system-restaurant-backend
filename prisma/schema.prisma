@@ -49,3 +49,42 @@ model VerificationCode {
   @@index([userId])
   @@map("verification_codes")
 }
+
+// ─── أضف ده لـ schema.prisma الموجود ───────────────────────────────────────────
+
+enum MenuCategory {
+  appetizer
+  main_course 
+  dessert 
+  beverage  
+  side_dish   
+}
+
+model MenuItem {
+  id          String          @id @default(uuid()) @db.Uuid
+  name        String          @db.VarChar(100)
+  description String?         @db.Text
+  price       Decimal         @db.Decimal(10, 2)
+  category    MenuCategory
+  isAvailable Boolean         @default(true) @map("is_available")
+  createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt   DateTime        @updatedAt @map("updated_at") @db.Timestamptz()
+
+  images      MenuItemImage[]
+
+  @@map("menu_items")
+}
+
+model MenuItemImage {
+  id          String   @id @default(uuid()) @db.Uuid
+  menuItemId  String   @map("menu_item_id") @db.Uuid
+  url         String   @db.Text
+  publicId    String   @map("public_id") @db.Text
+  order       Int      @default(0)          
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  menuItem    MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  @@index([menuItemId])
+  @@map("menu_item_images")
+}
