@@ -1,21 +1,28 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'node:path';
 import { AppModule } from './app.module.js';
 import { GlobalExceptionFilter } from './shared/exceptions/http-exception.filter.js';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   // Global Prefix
   app.setGlobalPrefix('api/v1');
+
+  // Static files
+  app.useStaticAssets(join(process.cwd(), 'public'), {
+    prefix: '/public',
+  });
 
   // CORS
   app.enableCors({
     origin: [
       process.env.FRONTEND_URL_LOCAL || 'http://localhost:5173',
       process.env.FRONTEND_URL_PRODUCTION,
-    ],
+    ].filter((origin): origin is string => Boolean(origin)),
     credentials: true,
   });
 

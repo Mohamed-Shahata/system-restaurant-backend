@@ -63,6 +63,9 @@ export class MenuRepository {
       data: items.map((item) => ({
         ...item,
         price: Number(item.price),
+        discountPercentage:
+          item.discountPercentage === null ? null : Number(item.discountPercentage),
+        rating: Number(item.rating),
       })),
       meta: {
         total,

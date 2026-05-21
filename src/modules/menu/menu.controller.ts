@@ -72,6 +72,9 @@ export class MenuController {
           example: 'main_course',
         },
         isAvailable: { type: 'boolean', example: true },
+        hasDiscount: { type: 'boolean', example: true },
+        discountPercentage: { type: 'number', example: 15 },
+        rating: { type: 'number', example: 4.6 },
         images: {
           type: 'array',
           items: { type: 'string', format: 'binary' },
@@ -107,6 +110,14 @@ export class MenuController {
   @ApiResponse({ status: 200, description: 'قائمة الوجبات مع metadata' })
   findAll(@Query() query: QueryMenuItemsDto) {
     return this.menuService.findAll(query);
+  }
+
+  @Get('categories')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'عرض تصنيفات الوجبات' })
+  @ApiResponse({ status: 200, description: 'قائمة تصنيفات الوجبات' })
+  getCategories() {
+    return this.menuService.getCategories();
   }
 
   // ─── Get One (Public) ───────────────────────────────────────────────────────
@@ -148,6 +159,9 @@ export class MenuController {
           enum: ['appetizer', 'main_course', 'dessert', 'beverage', 'side_dish'],
         },
         isAvailable: { type: 'boolean' },
+        hasDiscount: { type: 'boolean' },
+        discountPercentage: { type: 'number' },
+        rating: { type: 'number' },
         images: {
           type: 'array',
           items: { type: 'string', format: 'binary' },

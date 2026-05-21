@@ -20,6 +20,9 @@ export interface IMenuItem {
   price: number;
   category: MenuCategory;
   isAvailable: boolean;
+  hasDiscount: boolean;
+  discountPercentage: number | null;
+  rating: number;
   images: IMenuItemImage[];
   createdAt: Date;
   updatedAt: Date;

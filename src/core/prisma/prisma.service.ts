@@ -5,8 +5,14 @@ import { PrismaPg } from '@prisma/adapter-pg';
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   constructor() {
+    const databaseUrl = process.env.DATABASE_URL ?? process.env.DATABASE_URL_DIRECT;
+
+    if (!databaseUrl) {
+      throw new Error('Missing DATABASE_URL or DATABASE_URL_DIRECT in .env');
+    }
+
     const adapter = new PrismaPg({
-      connectionString: process.env.DATABASE_URL!,
+      connectionString: databaseUrl,
     });
     super({ adapter });
   }

@@ -67,6 +67,9 @@ model MenuItem {
   price       Decimal         @db.Decimal(10, 2)
   category    MenuCategory
   isAvailable Boolean         @default(true) @map("is_available")
+  hasDiscount Boolean         @default(false) @map("has_discount")
+  discountPercentage Decimal? @map("discount_percentage") @db.Decimal(5, 2)
+  rating      Decimal         @default(0) @db.Decimal(2, 1)
   createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamptz()
   updatedAt   DateTime        @updatedAt @map("updated_at") @db.Timestamptz()
 
