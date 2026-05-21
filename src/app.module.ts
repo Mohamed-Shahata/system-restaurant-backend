@@ -17,18 +17,26 @@ import {
   mailConfig,
   cloudinaryConfig,
 } from './core/config/app.config.js';
+import { MenuModule } from './modules/menu/menu.module.js';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [appConfig, databaseConfig, jwtConfig, mailConfig, cloudinaryConfig],
+      load: [
+        appConfig,
+        databaseConfig,
+        jwtConfig,
+        mailConfig,
+        cloudinaryConfig,
+      ],
     }),
     PrismaModule,
     MailModule,
     CloudinaryModule,
     UserModule,
     AuthModule,
+    MenuModule,
   ],
   controllers: [AppController],
   providers: [AppService],
