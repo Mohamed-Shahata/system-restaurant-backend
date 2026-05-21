@@ -2,17 +2,16 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsBoolean,
-  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsPositive,
   IsString,
+  IsUUID,
   Max,
   MaxLength,
   Min,
 } from 'class-validator';
-import { MenuCategory } from '@prisma/client';
 
 export class CreateMenuItemDto {
   @ApiProperty({ example: 'كباب مشوي', description: 'اسم الوجبة' })
@@ -36,12 +35,11 @@ export class CreateMenuItemDto {
   price: number;
 
   @ApiProperty({
-    enum: MenuCategory,
-    example: MenuCategory.main_course,
+    example: '22222222-2222-2222-2222-222222222222',
     description: 'تصنيف الوجبة',
   })
-  @IsEnum(MenuCategory)
-  category: MenuCategory;
+  @IsUUID()
+  categoryId: string;
 
   @ApiPropertyOptional({ example: true, description: 'هل الوجبة متاحة؟' })
   @IsBoolean()

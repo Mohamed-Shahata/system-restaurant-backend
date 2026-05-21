@@ -61,15 +61,15 @@ export class MenuController {
   @ApiBody({
     schema: {
       type: 'object',
-      required: ['name', 'price', 'category'],
+      required: ['name', 'price', 'categoryId'],
       properties: {
         name: { type: 'string', example: 'كباب مشوي' },
         description: { type: 'string', example: 'كباب طازج مع الخضروات' },
         price: { type: 'number', example: 89.99 },
-        category: {
+        categoryId: {
           type: 'string',
-          enum: ['appetizer', 'main_course', 'dessert', 'beverage', 'side_dish'],
-          example: 'main_course',
+          format: 'uuid',
+          example: '22222222-2222-2222-2222-222222222222',
         },
         isAvailable: { type: 'boolean', example: true },
         hasDiscount: { type: 'boolean', example: true },
@@ -101,23 +101,15 @@ export class MenuController {
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
   @ApiQuery({
-    name: 'category',
+    name: 'categoryId',
     required: false,
-    enum: ['appetizer', 'main_course', 'dessert', 'beverage', 'side_dish'],
+    type: String,
   })
   @ApiQuery({ name: 'isAvailable', required: false, type: Boolean })
   @ApiQuery({ name: 'search', required: false, type: String })
   @ApiResponse({ status: 200, description: 'قائمة الوجبات مع metadata' })
   findAll(@Query() query: QueryMenuItemsDto) {
     return this.menuService.findAll(query);
-  }
-
-  @Get('categories')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'عرض تصنيفات الوجبات' })
-  @ApiResponse({ status: 200, description: 'قائمة تصنيفات الوجبات' })
-  getCategories() {
-    return this.menuService.getCategories();
   }
 
   // ─── Get One (Public) ───────────────────────────────────────────────────────
@@ -154,9 +146,9 @@ export class MenuController {
         name: { type: 'string' },
         description: { type: 'string' },
         price: { type: 'number' },
-        category: {
+        categoryId: {
           type: 'string',
-          enum: ['appetizer', 'main_course', 'dessert', 'beverage', 'side_dish'],
+          format: 'uuid',
         },
         isAvailable: { type: 'boolean' },
         hasDiscount: { type: 'boolean' },

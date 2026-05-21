@@ -1,5 +1,4 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { MenuCategory } from '@prisma/client';
 import { CloudinaryService } from '../../shared/cloudinary/cloudinary.service.js';
 import { CreateMenuItemDto } from './dto/create-menu-item.dto.js';
 import { QueryMenuItemsDto } from './dto/query-menu-items.dto.js';
@@ -27,7 +26,7 @@ export class MenuService {
       name: dto.name,
       description: dto.description,
       price: dto.price,
-      category: dto.category,
+      category: { connect: { id: dto.categoryId } },
       isAvailable: dto.isAvailable ?? true,
       hasDiscount,
       discountPercentage: hasDiscount ? (dto.discountPercentage ?? 0) : null,
@@ -53,20 +52,10 @@ export class MenuService {
     return this.menuRepository.findAll({
       page: query.page ?? 1,
       limit: query.limit ?? 10,
-      category: query.category,
+      categoryId: query.categoryId,
       isAvailable: query.isAvailable,
       search: query.search,
     });
-  }
-
-  getCategories() {
-    return Object.values(MenuCategory).map((value) => ({
-      value,
-      label: value
-        .split('_')
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' '),
-    }));
   }
 
   async findOne(id: string): Promise<IMenuItem> {
@@ -90,7 +79,9 @@ export class MenuService {
       ...(dto.name !== undefined && { name: dto.name }),
       ...(dto.description !== undefined && { description: dto.description }),
       ...(dto.price !== undefined && { price: dto.price }),
-      ...(dto.category !== undefined && { category: dto.category }),
+      ...(dto.categoryId !== undefined && {
+        category: { connect: { id: dto.categoryId } },
+      }),
       ...(dto.isAvailable !== undefined && { isAvailable: dto.isAvailable }),
       ...(dto.hasDiscount !== undefined && { hasDiscount: dto.hasDiscount }),
       ...(dto.hasDiscount === false && { discountPercentage: null }),

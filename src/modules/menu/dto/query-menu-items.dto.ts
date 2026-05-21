@@ -1,7 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { MenuCategory } from '@prisma/client';
 import { Type } from 'class-transformer';
-import { IsBoolean, IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { IsBoolean, IsInt, IsOptional, IsString, IsUUID, Min } from 'class-validator';
 
 export class QueryMenuItemsDto {
   @ApiPropertyOptional({ example: 1, description: 'رقم الصفحة', default: 1 })
@@ -23,12 +22,12 @@ export class QueryMenuItemsDto {
   limit?: number = 10;
 
   @ApiPropertyOptional({
-    enum: MenuCategory,
+    example: '22222222-2222-2222-2222-222222222222',
     description: 'فلترة حسب التصنيف',
   })
-  @IsEnum(MenuCategory)
+  @IsUUID()
   @IsOptional()
-  category?: MenuCategory;
+  categoryId?: string;
 
   @ApiPropertyOptional({
     example: true,

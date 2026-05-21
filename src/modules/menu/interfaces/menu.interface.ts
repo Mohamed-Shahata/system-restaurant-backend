@@ -1,9 +1,14 @@
-import { MenuCategory } from '@prisma/client';
-
-// Re-export so the rest of the app can import from one place
-export { MenuCategory };
-
 // ─── Core interfaces ──────────────────────────────────────────────────────────
+export interface ICategory {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface IMenuItemImage {
   id: string;
   menuItemId: string;
@@ -18,7 +23,8 @@ export interface IMenuItem {
   name: string;
   description: string | null;
   price: number;
-  category: MenuCategory;
+  categoryId: string;
+  category: ICategory;
   isAvailable: boolean;
   hasDiscount: boolean;
   discountPercentage: number | null;
@@ -47,7 +53,7 @@ export interface IMenuRepository {
   findAll(params: {
     page: number;
     limit: number;
-    category?: MenuCategory;
+    categoryId?: string;
     isAvailable?: boolean;
     search?: string;
   }): Promise<IPaginatedMenuItems>;

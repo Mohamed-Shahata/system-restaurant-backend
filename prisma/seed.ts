@@ -4,7 +4,6 @@ config(); // ← لازم يكون أول سطر قبل أي import تاني
 import { randomUUID } from 'crypto';
 import { existsSync } from 'fs';
 import { join } from 'path';
-import { MenuCategory } from '@prisma/client';
 import { v2 as cloudinary } from 'cloudinary';
 import type { UploadApiResponse } from 'cloudinary';
 import pg from 'pg';
@@ -28,7 +27,10 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-async function withRetry<T>(operation: () => Promise<T>, label: string): Promise<T> {
+async function withRetry<T>(
+  operation: () => Promise<T>,
+  label: string,
+): Promise<T> {
   const maxAttempts = 3;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -45,7 +47,9 @@ async function withRetry<T>(operation: () => Promise<T>, label: string): Promise
         throw error;
       }
 
-      console.log(`⏳ ${label} فشلت مؤقتًا (${code})، محاولة ${attempt + 1}/${maxAttempts}...`);
+      console.log(
+        `⏳ ${label} فشلت مؤقتًا (${code})، محاولة ${attempt + 1}/${maxAttempts}...`,
+      );
       await new Promise((resolve) => setTimeout(resolve, attempt * 2000));
     }
   }
@@ -94,6 +98,45 @@ type SeedImage = {
   url: string;
   publicId: string;
 };
+
+const categories = [
+  {
+    id: '11111111-1111-1111-1111-111111111111',
+    name: 'بيتزا',
+    slug: 'appetizer',
+    description: 'Starters and small plates',
+  },
+  {
+    id: '22222222-2222-2222-2222-222222222222',
+    name: 'طبق الرئيسي',
+    slug: 'main_course',
+    description: 'Main dishes and entrees',
+  },
+  {
+    id: '33333333-3333-3333-3333-333333333333',
+    name: 'حلويات',
+    slug: 'dessert',
+    description: 'Sweet dishes and desserts',
+  },
+  {
+    id: '44444444-4444-4444-4444-444444444444',
+    name: 'برجر',
+    slug: 'beverage',
+    description: 'Hot and cold drinks',
+  },
+  {
+    id: '55555555-5555-5555-5555-555555555555',
+    name: 'طبق جانبي',
+    slug: 'side_dish',
+    description: 'Sides and extras',
+  },
+] as const;
+
+type CategorySlug = (typeof categories)[number]['slug'];
+
+const categoryIdBySlug = new Map<CategorySlug, string>(
+  categories.map((category) => [category.slug, category.id]),
+);
 
 function ensureCloudinaryConfig() {
   if (
@@ -151,7 +194,7 @@ const menuItems: {
   name: string;
   description: string;
   price: number;
-  category: MenuCategory;
+  category: CategorySlug;
   isAvailable: boolean;
 }[] = [
   // ─── Appetizers (15 items) ────────────────────────────────────────────────
@@ -159,105 +202,105 @@ const menuItems: {
     name: 'حمص بالطحينة',
     description: 'حمص كريمي مع طحينة فاخرة وزيت زيتون بكر وبقدونس طازج',
     price: 25.0,
-    category: MenuCategory.appetizer,
+    category: 'appetizer',
     isAvailable: true,
   },
   {
     name: 'بابا غنوج',
     description: 'باذنجان مشوي مهروس مع طحينة وليمون وثوم',
     price: 28.0,
-    category: MenuCategory.appetizer,
+    category: 'appetizer',
     isAvailable: true,
   },
   {
     name: 'سلطة فتوش',
     description: 'خضروات طازجة مع خبز مقرمش وصلصة رمان',
     price: 22.0,
-    category: MenuCategory.appetizer,
+    category: 'appetizer',
     isAvailable: true,
   },
   {
     name: 'ورق عنب بالزيت',
     description: 'ورق عنب محشو بالأرز والبقدونس والطماطم',
     price: 35.0,
-    category: MenuCategory.appetizer,
+    category: 'appetizer',
     isAvailable: true,
   },
   {
     name: 'جبنة بالزعتر',
     description: 'جبنة بيضاء طازجة مع زعتر وزيت زيتون',
     price: 20.0,
-    category: MenuCategory.appetizer,
+    category: 'appetizer',
     isAvailable: true,
   },
   {
     name: 'فلافل',
     description: 'كرات الفلافل المقلية المقرمشة مع صلصة الطحينة',
     price: 30.0,
-    category: MenuCategory.appetizer,
+    category: 'appetizer',
     isAvailable: true,
   },
   {
     name: 'سبانخ بالجبنة',
     description: 'فطائر السبانخ والجبنة الفيتا الطازجة',
     price: 32.0,
-    category: MenuCategory.appetizer,
+    category: 'appetizer',
     isAvailable: false,
   },
   {
     name: 'سلطة تبولة',
     description: 'بقدونس طازج مع البرغل والطماطم والنعناع',
     price: 24.0,
-    category: MenuCategory.appetizer,
+    category: 'appetizer',
     isAvailable: true,
   },
   {
     name: 'شوربة عدس',
     description: 'شوربة عدس أصفر بالكمون والليمون',
     price: 18.0,
-    category: MenuCategory.appetizer,
+    category: 'appetizer',
     isAvailable: true,
   },
   {
     name: 'شوربة طماطم',
     description: 'شوربة طماطم كريمية مع ريحان طازج',
     price: 20.0,
-    category: MenuCategory.appetizer,
+    category: 'appetizer',
     isAvailable: true,
   },
   {
     name: 'مقبلات مشكلة',
     description: 'تشكيلة من الحمص والمتبل وورق العنب والفلافل',
     price: 65.0,
-    category: MenuCategory.appetizer,
+    category: 'appetizer',
     isAvailable: true,
   },
   {
     name: 'جبنة مقلية',
     description: 'جبنة هالومي مقلية مع خضروات مشوية',
     price: 38.0,
-    category: MenuCategory.appetizer,
+    category: 'appetizer',
     isAvailable: true,
   },
   {
     name: 'أرضي شوكي مقلي',
     description: 'قلوب الأرضي شوكي المقلية مع صلصة الليمون والثوم',
     price: 42.0,
-    category: MenuCategory.appetizer,
+    category: 'appetizer',
     isAvailable: false,
   },
   {
     name: 'سمبوسة لحم',
     description: 'مثلثات عجين محشوة بلحم مفروم والبهارات',
     price: 36.0,
-    category: MenuCategory.appetizer,
+    category: 'appetizer',
     isAvailable: true,
   },
   {
     name: 'شوربة دجاج',
     description: 'شوربة دجاج بيضاء بالخضروات والشعرية',
     price: 22.0,
-    category: MenuCategory.appetizer,
+    category: 'appetizer',
     isAvailable: true,
   },
 
@@ -266,140 +309,140 @@ const menuItems: {
     name: 'كباب مشوي',
     description: 'كباب لحم ضأن مشوي على الفحم مع خبز وسلطة',
     price: 85.0,
-    category: MenuCategory.main_course,
+    category: 'main_course',
     isAvailable: true,
   },
   {
     name: 'دجاج مشوي',
     description: 'نصف دجاجة مشوية بالأعشاب مع بطاطس مشوية',
     price: 72.0,
-    category: MenuCategory.main_course,
+    category: 'main_course',
     isAvailable: true,
   },
   {
     name: 'سمك فيليه',
     description: 'فيليه سمك مشوي بصلصة الليمون والكبر',
     price: 95.0,
-    category: MenuCategory.main_course,
+    category: 'main_course',
     isAvailable: true,
   },
   {
     name: 'شاورما دجاج',
     description: 'شاورما دجاج بالخبز العربي مع الثوم والمخلل',
     price: 55.0,
-    category: MenuCategory.main_course,
+    category: 'main_course',
     isAvailable: true,
   },
   {
     name: 'شاورما لحم',
     description: 'شاورما لحم بالخبز العربي مع الطحينة والبقدونس',
     price: 65.0,
-    category: MenuCategory.main_course,
+    category: 'main_course',
     isAvailable: true,
   },
   {
     name: 'مسخن دجاج',
     description: 'دجاج بالبصل المكرمل والسماق على خبز طابون',
     price: 78.0,
-    category: MenuCategory.main_course,
+    category: 'main_course',
     isAvailable: true,
   },
   {
     name: 'مقلوبة',
     description: 'أرز مع دجاج أو لحم وخضروات مقلوبة بالبهارات',
     price: 80.0,
-    category: MenuCategory.main_course,
+    category: 'main_course',
     isAvailable: true,
   },
   {
     name: 'منسف',
     description: 'لحم ضأن مع الجميد على طبق الأرز والخبز الرقيق',
     price: 120.0,
-    category: MenuCategory.main_course,
+    category: 'main_course',
     isAvailable: false,
   },
   {
     name: 'كفتة مشوية',
     description: 'كفتة لحم مشوية مع أرز وسلطة',
     price: 70.0,
-    category: MenuCategory.main_course,
+    category: 'main_course',
     isAvailable: true,
   },
   {
     name: 'ستيك لحم',
     description: 'ستيك لحم بقري مع بطاطس وصلصة الفطر',
     price: 135.0,
-    category: MenuCategory.main_course,
+    category: 'main_course',
     isAvailable: true,
   },
   {
     name: 'دجاج بالكاري',
     description: 'دجاج بصلصة الكاري الهندي مع أرز بسمتي',
     price: 68.0,
-    category: MenuCategory.main_course,
+    category: 'main_course',
     isAvailable: true,
   },
   {
     name: 'سمك صيادية',
     description: 'سمك مع أرز الصيادية والبصل والبهارات',
     price: 90.0,
-    category: MenuCategory.main_course,
+    category: 'main_course',
     isAvailable: true,
   },
   {
     name: 'فتة دجاج',
     description: 'طبق الفتة بالدجاج والأرز والخبز والزبادي',
     price: 62.0,
-    category: MenuCategory.main_course,
+    category: 'main_course',
     isAvailable: true,
   },
   {
     name: 'ملوخية بالأرانب',
     description: 'ملوخية طازجة مطبوخة مع الأرانب والثوم',
     price: 75.0,
-    category: MenuCategory.main_course,
+    category: 'main_course',
     isAvailable: true,
   },
   {
     name: 'برياني دجاج',
     description: 'أرز البرياني بالدجاج والزعفران والبهارات الهندية',
     price: 85.0,
-    category: MenuCategory.main_course,
+    category: 'main_course',
     isAvailable: true,
   },
   {
     name: 'لازانيا لحم',
     description: 'لازانيا إيطالية بالبشاميل ولحم مفروم',
     price: 78.0,
-    category: MenuCategory.main_course,
+    category: 'main_course',
     isAvailable: false,
   },
   {
     name: 'باستا أرابياتا',
     description: 'باستا بصلصة الطماطم الحارة والثوم',
     price: 55.0,
-    category: MenuCategory.main_course,
+    category: 'main_course',
     isAvailable: true,
   },
   {
     name: 'برجر لحم',
     description: 'برجر لحم بقري 200 جرام مع جبنة وخضروات',
     price: 65.0,
-    category: MenuCategory.main_course,
+    category: 'main_course',
     isAvailable: true,
   },
   {
     name: 'دجاج كريسبي',
     description: 'قطع دجاج مقرمشة مع صلصة الهوت وبطاطس',
     price: 60.0,
-    category: MenuCategory.main_course,
+    category: 'main_course',
     isAvailable: true,
   },
   {
     name: 'أخطبوط مشوي',
     description: 'أخطبوط مشوي بزيت الزيتون والأعشاب البحرية',
     price: 110.0,
-    category: MenuCategory.main_course,
+    category: 'main_course',
     isAvailable: false,
   },
 
@@ -408,84 +451,84 @@ const menuItems: {
     name: 'كنافة نابلسية',
     description: 'كنافة بجبنة الموزاريلا والقطر والفستق',
     price: 40.0,
-    category: MenuCategory.dessert,
+    category: 'dessert',
     isAvailable: true,
   },
   {
     name: 'أم علي',
     description: 'حلوى أم علي المصرية بالكريمة والمكسرات',
     price: 35.0,
-    category: MenuCategory.dessert,
+    category: 'dessert',
     isAvailable: true,
   },
   {
     name: 'بقلاوة',
     description: 'بقلاوة بالفستق والقطر محلية الصنع',
     price: 30.0,
-    category: MenuCategory.dessert,
+    category: 'dessert',
     isAvailable: true,
   },
   {
     name: 'تشيز كيك',
     description: 'تشيز كيك كريمي بصلصة الفراولة',
     price: 45.0,
-    category: MenuCategory.dessert,
+    category: 'dessert',
     isAvailable: true,
   },
   {
     name: 'مولتن كيك شوكولاتة',
     description: 'كيك شوكولاتة ساخن بقلب سائل مع آيس كريم',
     price: 50.0,
-    category: MenuCategory.dessert,
+    category: 'dessert',
     isAvailable: true,
   },
   {
     name: 'تيراميسو',
     description: 'تيراميسو إيطالي كلاسيكي بالكاكاو والقهوة',
     price: 48.0,
-    category: MenuCategory.dessert,
+    category: 'dessert',
     isAvailable: true,
   },
   {
     name: 'بودينج مانجو',
     description: 'بودينج كريمي بالمانجو الطازجة',
     price: 32.0,
-    category: MenuCategory.dessert,
+    category: 'dessert',
     isAvailable: false,
   },
   {
     name: 'آيس كريم مانجو',
     description: 'آيس كريم مانجو طبيعي 3 كرات',
     price: 28.0,
-    category: MenuCategory.dessert,
+    category: 'dessert',
     isAvailable: true,
   },
   {
     name: 'كريب نوتيلا',
     description: 'كريب رقيق بالنوتيلا والموز والفراولة',
     price: 38.0,
-    category: MenuCategory.dessert,
+    category: 'dessert',
     isAvailable: true,
   },
   {
     name: 'رقائق الشوكولاتة',
     description: 'وافل بالشوكولاتة والكريمة المخفوقة',
     price: 42.0,
-    category: MenuCategory.dessert,
+    category: 'dessert',
     isAvailable: true,
   },
   {
     name: 'مهلبية',
     description: 'مهلبية بماء الورد والفستق والزبيب',
     price: 22.0,
-    category: MenuCategory.dessert,
+    category: 'dessert',
     isAvailable: true,
   },
   {
     name: 'قطايف رمضانية',
     description: 'قطايف محشوة بالقشطة والمكسرات',
     price: 35.0,
-    category: MenuCategory.dessert,
+    category: 'dessert',
     isAvailable: false,
   },
 
@@ -494,91 +537,91 @@ const menuItems: {
     name: 'عصير مانجو طازج',
     description: 'عصير مانجو طبيعي 100% بدون سكر',
     price: 25.0,
-    category: MenuCategory.beverage,
+    category: 'beverage',
     isAvailable: true,
   },
   {
     name: 'ليموناضة نعناع',
     description: 'ليموناضة طازجة بالنعناع والنكهة المنعشة',
     price: 20.0,
-    category: MenuCategory.beverage,
+    category: 'beverage',
     isAvailable: true,
   },
   {
     name: 'قهوة عربية',
     description: 'قهوة عربية بالهيل والزعفران',
     price: 15.0,
-    category: MenuCategory.beverage,
+    category: 'beverage',
     isAvailable: true,
   },
   {
     name: 'شاي أحمر',
     description: 'شاي أحمر مصري بالنعناع الطازج',
     price: 10.0,
-    category: MenuCategory.beverage,
+    category: 'beverage',
     isAvailable: true,
   },
   {
     name: 'كابوتشينو',
     description: 'كابوتشينو إيطالي بالحليب المبخر والكاكاو',
     price: 30.0,
-    category: MenuCategory.beverage,
+    category: 'beverage',
     isAvailable: true,
   },
   {
     name: 'لاتيه',
     description: 'لاتيه كريمي بالفانيليا أو الكراميل',
     price: 32.0,
-    category: MenuCategory.beverage,
+    category: 'beverage',
     isAvailable: true,
   },
   {
     name: 'سموذي فراولة',
     description: 'سموذي الفراولة بالحليب والعسل',
     price: 28.0,
-    category: MenuCategory.beverage,
+    category: 'beverage',
     isAvailable: true,
   },
   {
     name: 'عصير برتقال',
     description: 'عصير برتقال طازج معصور أمامك',
     price: 22.0,
-    category: MenuCategory.beverage,
+    category: 'beverage',
     isAvailable: true,
   },
   {
     name: 'مياه معدنية',
     description: 'مياه معدنية 500 مل',
     price: 8.0,
-    category: MenuCategory.beverage,
+    category: 'beverage',
     isAvailable: true,
   },
   {
     name: 'سودا بالنكهات',
     description: 'مياه غازية بنكهة الليمون أو التوت',
     price: 18.0,
-    category: MenuCategory.beverage,
+    category: 'beverage',
     isAvailable: true,
   },
   {
     name: 'كوكتيل فواكه',
     description: 'مزيج فواكه طازجة موسمية',
     price: 35.0,
-    category: MenuCategory.beverage,
+    category: 'beverage',
     isAvailable: false,
   },
   {
     name: 'شاي أخضر',
     description: 'شاي أخضر ياباني بالليمون والزنجبيل',
     price: 15.0,
-    category: MenuCategory.beverage,
+    category: 'beverage',
     isAvailable: true,
   },
   {
     name: 'شوكولاتة ساخنة',
     description: 'شوكولاتة ساخنة كريمية مع مارشميلو',
     price: 28.0,
-    category: MenuCategory.beverage,
+    category: 'beverage',
     isAvailable: true,
   },
 
@@ -587,82 +630,84 @@ const menuItems: {
     name: 'بطاطس مقلية',
     description: 'بطاطس فرنسية مقلية مقرمشة مع كاتشب',
     price: 20.0,
-    category: MenuCategory.side_dish,
+    category: 'side_dish',
     isAvailable: true,
   },
   {
     name: 'أرز أبيض',
     description: 'أرز أبيض مطبوخ بالزبدة والشعرية',
     price: 15.0,
-    category: MenuCategory.side_dish,
+    category: 'side_dish',
     isAvailable: true,
   },
   {
     name: 'خبز عربي',
     description: 'خبز عربي طازج 3 أرغفة',
     price: 8.0,
-    category: MenuCategory.side_dish,
+    category: 'side_dish',
     isAvailable: true,
   },
   {
     name: 'سلطة خضراء',
     description: 'سلطة خضراء طازجة بالطماطم والخيار والزيتون',
     price: 18.0,
-    category: MenuCategory.side_dish,
+    category: 'side_dish',
     isAvailable: true,
   },
   {
     name: 'بطاطس مشوية',
     description: 'بطاطس مشوية بالروزماري وزيت الزيتون',
     price: 22.0,
-    category: MenuCategory.side_dish,
+    category: 'side_dish',
     isAvailable: true,
   },
   {
     name: 'خضروات مشوية',
     description: 'تشكيلة خضروات مشوية بزيت الزيتون والأعشاب',
     price: 25.0,
-    category: MenuCategory.side_dish,
+    category: 'side_dish',
     isAvailable: true,
   },
   {
     name: 'أرز بالخضار',
     description: 'أرز مطبوخ مع الخضروات الموسمية والبهارات',
     price: 22.0,
-    category: MenuCategory.side_dish,
+    category: 'side_dish',
     isAvailable: true,
   },
   {
     name: 'خبز ثوم',
     description: 'خبز محمص بالثوم والبقدونس والزبدة',
     price: 18.0,
-    category: MenuCategory.side_dish,
+    category: 'side_dish',
     isAvailable: true,
   },
   {
     name: 'مخلل مشكل',
     description: 'مخلل خضروات مشكل محلي الصنع',
     price: 12.0,
-    category: MenuCategory.side_dish,
+    category: 'side_dish',
     isAvailable: true,
   },
   {
     name: 'صلصة ثوم',
     description: 'صلصة الثوم الكريمية التوم',
     price: 10.0,
-    category: MenuCategory.side_dish,
+    category: 'side_dish',
     isAvailable: true,
   },
 ];
 
 function enrichMenuItem(item: (typeof menuItems)[number], index: number) {
-  const hasDiscount = index % 4 === 0 || item.category === MenuCategory.dessert;
+  const hasDiscount = index % 4 === 0 || item.category === 'dessert';
   const discountValues = [10, 15, 20, 25];
 
   return {
     ...item,
     hasDiscount,
-    discountPercentage: hasDiscount ? discountValues[index % discountValues.length] : null,
+    discountPercentage: hasDiscount
+      ? discountValues[index % discountValues.length]
+      : null,
     rating: Number((4.1 + (index % 9) * 0.1).toFixed(1)),
   };
 }
@@ -673,9 +718,37 @@ async function main() {
 
   // حذف البيانات القديمة
   console.log('🗑️  حذف البيانات القديمة...');
-  await withRetry(() => pool.query('DELETE FROM "menu_item_images"'), 'حذف صور المنتجات');
+  await withRetry(
+    () => pool.query('DELETE FROM "menu_item_images"'),
+    'حذف صور المنتجات',
+  );
   await withRetry(() => pool.query('DELETE FROM "menu_items"'), 'حذف المنتجات');
   console.log('✅ تم حذف البيانات القديمة\n');
+
+  console.log('🏷️  إنشاء/تحديث التصنيفات...');
+  await withRetry(
+    () =>
+      pool.query(
+        `
+          INSERT INTO "categories" ("id", "name", "slug", "description", "created_at", "updated_at")
+          SELECT * FROM UNNEST($1::uuid[], $2::text[], $3::text[], $4::text[], $5::timestamptz[], $6::timestamptz[])
+          ON CONFLICT ("slug") DO UPDATE SET
+            "name" = EXCLUDED."name",
+            "description" = EXCLUDED."description",
+            "updated_at" = CURRENT_TIMESTAMP
+        `,
+        [
+          categories.map((category) => category.id),
+          categories.map((category) => category.name),
+          categories.map((category) => category.slug),
+          categories.map((category) => category.description),
+          categories.map(() => 'now'),
+          categories.map(() => 'now'),
+        ],
+      ),
+    'إنشاء التصنيفات',
+  );
+  console.log(`✅ تم تجهيز ${categories.length} تصنيفات\n`);
 
   // إنشاء المنتجات
   console.log(`📦 إنشاء ${menuItems.length} منتج...\n`);
@@ -695,7 +768,7 @@ async function main() {
       'name',
       'description',
       'price',
-      'category',
+      'category_id',
       'is_available',
       'has_discount',
       'discount_percentage',
@@ -708,7 +781,8 @@ async function main() {
       item.name,
       item.description,
       item.price,
-      item.category,
+      categoryIdBySlug.get(item.category) ??
+        categoryIdBySlug.get('main_course')!,
       item.isAvailable,
       item.hasDiscount,
       item.discountPercentage,
@@ -717,7 +791,7 @@ async function main() {
       'now',
     ]),
     {
-      4: '"MenuCategory"',
+      4: 'uuid',
       9: 'timestamptz',
       10: 'timestamptz',
     },
@@ -741,24 +815,21 @@ async function main() {
     },
   );
 
-  await withRetry(
-    async () => {
-      const client = await pool.connect();
+  await withRetry(async () => {
+    const client = await pool.connect();
 
-      try {
-        await client.query('BEGIN');
-        await client.query(menuItemsInsert);
-        await client.query(imagesInsert);
-        await client.query('COMMIT');
-      } catch (error) {
-        await client.query('ROLLBACK');
-        throw error;
-      } finally {
-        client.release();
-      }
-    },
-    'إنشاء المنتجات',
-  );
+    try {
+      await client.query('BEGIN');
+      await client.query(menuItemsInsert);
+      await client.query(imagesInsert);
+      await client.query('COMMIT');
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+  }, 'إنشاء المنتجات');
 
   for (const [index, item] of menuItems.entries()) {
     const enrichedItem = enrichMenuItem(item, index);
@@ -769,11 +840,11 @@ async function main() {
 
   // ─── ملخص ─────────────────────────────────────────────────────────────────
   const counts = [
-    menuItems.filter((item) => item.category === MenuCategory.appetizer).length,
-    menuItems.filter((item) => item.category === MenuCategory.main_course).length,
-    menuItems.filter((item) => item.category === MenuCategory.dessert).length,
-    menuItems.filter((item) => item.category === MenuCategory.beverage).length,
-    menuItems.filter((item) => item.category === MenuCategory.side_dish).length,
+    menuItems.filter((item) => item.category === 'appetizer').length,
+    menuItems.filter((item) => item.category === 'main_course').length,
+    menuItems.filter((item) => item.category === 'dessert').length,
+    menuItems.filter((item) => item.category === 'beverage').length,
+    menuItems.filter((item) => item.category === 'side_dish').length,
     menuItems.filter((item) => item.isAvailable).length,
     menuItems.filter((item) => !item.isAvailable).length,
     menuItems.map(enrichMenuItem).filter((item) => item.hasDiscount).length,

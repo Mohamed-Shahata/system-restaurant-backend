@@ -18,6 +18,7 @@ import {
   cloudinaryConfig,
 } from './core/config/app.config.js';
 import { MenuModule } from './modules/menu/menu.module.js';
+import { CategoryModule } from './modules/categories/category.module.js';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { MenuModule } from './modules/menu/menu.module.js';
     CloudinaryModule,
     UserModule,
     AuthModule,
+    CategoryModule,
     MenuModule,
   ],
   controllers: [AppController],

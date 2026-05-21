@@ -1,9 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { MenuItem, MenuItemImage, MenuCategory, Prisma } from '@prisma/client';
+import { Category, MenuItem, MenuItemImage, Prisma } from '@prisma/client';
 import { PrismaService } from '../../../core/prisma/prisma.service.js';
 import { IPaginatedMenuItems } from '../interfaces/menu.interface.js';
 
-export type MenuItemWithImages = MenuItem & { images: MenuItemImage[] };
+export type MenuItemWithImages = MenuItem & {
+  category: Category;
+  images: MenuItemImage[];
+};
+
+const menuItemInclude = {
+  category: true,
+  images: { orderBy: { order: 'asc' } },
+} satisfies Prisma.MenuItemInclude;
 
 @Injectable()
 export class MenuRepository {
@@ -14,7 +22,7 @@ export class MenuRepository {
   async create(data: Prisma.MenuItemCreateInput): Promise<MenuItemWithImages> {
     return this.prisma.menuItem.create({
       data,
-      include: { images: { orderBy: { order: 'asc' } } },
+      include: menuItemInclude,
     });
   }
 
@@ -23,22 +31,22 @@ export class MenuRepository {
   async findById(id: string): Promise<MenuItemWithImages | null> {
     return this.prisma.menuItem.findUnique({
       where: { id },
-      include: { images: { orderBy: { order: 'asc' } } },
+      include: menuItemInclude,
     });
   }
 
   async findAll(params: {
     page: number;
     limit: number;
-    category?: MenuCategory;
+    categoryId?: string;
     isAvailable?: boolean;
     search?: string;
   }): Promise<IPaginatedMenuItems> {
-    const { page, limit, category, isAvailable, search } = params;
+    const { page, limit, categoryId, isAvailable, search } = params;
     const skip = (page - 1) * limit;
 
     const where: Prisma.MenuItemWhereInput = {
-      ...(category && { category }),
+      ...(categoryId && { categoryId }),
       ...(isAvailable !== undefined && { isAvailable }),
       ...(search && {
         OR: [
@@ -54,7 +62,7 @@ export class MenuRepository {
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
-        include: { images: { orderBy: { order: 'asc' } } },
+        include: menuItemInclude,
       }),
       this.prisma.menuItem.count({ where }),
     ]);
@@ -85,7 +93,7 @@ export class MenuRepository {
     return this.prisma.menuItem.update({
       where: { id },
       data,
-      include: { images: { orderBy: { order: 'asc' } } },
+      include: menuItemInclude,
     });
   }
 
