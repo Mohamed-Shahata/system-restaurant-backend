@@ -5,7 +5,8 @@ import { randomUUID } from 'crypto';
 import { existsSync } from 'fs';
 import { join } from 'path';
 import { MenuCategory } from '@prisma/client';
-import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
+import { v2 as cloudinary } from 'cloudinary';
+import type { UploadApiResponse } from 'cloudinary';
 import pg from 'pg';
 
 const databaseUrl = process.env.DATABASE_URL ?? process.env.DATABASE_URL_DIRECT;
