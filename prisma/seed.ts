@@ -2,7 +2,10 @@ import { config } from 'dotenv';
 config(); // ← لازم يكون أول سطر قبل أي import تاني
 
 import { randomUUID } from 'crypto';
+import { existsSync } from 'fs';
+import { join } from 'path';
 import { MenuCategory } from '@prisma/client';
+import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 import pg from 'pg';
 
 const databaseUrl = process.env.DATABASE_URL ?? process.env.DATABASE_URL_DIRECT;
@@ -16,6 +19,12 @@ const pool = new pg.Pool({
   connectionTimeoutMillis: 60000,
   query_timeout: 60000,
   max: 1,
+});
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 async function withRetry<T>(operation: () => Promise<T>, label: string): Promise<T> {
@@ -68,7 +77,7 @@ function buildBulkInsert(
   };
 }
 
-// ─── صور محلية من public بدل Cloudinary ─────────────────────────────────────
+// ─── صور محلية يتم رفعها على Cloudinary ─────────────────────────────────────
 const PUBLIC_IMAGE_FILES = [
   'images (1).jpeg',
   'images (2).jpeg',
@@ -80,20 +89,57 @@ const PUBLIC_IMAGE_FILES = [
   'junk-food759.jpg',
 ];
 
-const PUBLIC_BASE_URL =
-  process.env.BACKEND_URL?.replace(/\/$/, '') ?? `http://localhost:${process.env.PORT ?? 3000}`;
+type SeedImage = {
+  url: string;
+  publicId: string;
+};
 
-function buildPublicImageUrl(fileName: string) {
-  return `${PUBLIC_BASE_URL}/public/${encodeURIComponent(fileName)}`;
+function ensureCloudinaryConfig() {
+  if (
+    !process.env.CLOUDINARY_CLOUD_NAME ||
+    !process.env.CLOUDINARY_API_KEY ||
+    !process.env.CLOUDINARY_API_SECRET
+  ) {
+    throw new Error('Missing Cloudinary env vars');
+  }
 }
 
-function getItemImages(index: number) {
+async function uploadSeedImages(): Promise<SeedImage[]> {
+  ensureCloudinaryConfig();
+
+  const publicDir = join(process.cwd(), 'public');
+
+  return Promise.all(
+    PUBLIC_IMAGE_FILES.map(async (fileName) => {
+      const filePath = join(publicDir, fileName);
+
+      if (!existsSync(filePath)) {
+        throw new Error(`Missing seed image: ${filePath}`);
+      }
+
+      const result = (await cloudinary.uploader.upload(filePath, {
+        folder: 'restaurant/menu-seed',
+        use_filename: true,
+        unique_filename: false,
+        overwrite: true,
+        resource_type: 'image',
+      })) as UploadApiResponse;
+
+      return {
+        url: result.secure_url,
+        publicId: result.public_id,
+      };
+    }),
+  );
+}
+
+function getItemImages(index: number, uploadedImages: SeedImage[]) {
   return Array.from({ length: 3 }, (_, imageIndex) => {
-    const fileName = PUBLIC_IMAGE_FILES[(index + imageIndex) % PUBLIC_IMAGE_FILES.length];
+    const image = uploadedImages[(index + imageIndex) % uploadedImages.length];
 
     return {
-      url: buildPublicImageUrl(fileName),
-      publicId: `public/${fileName}`,
+      url: image.url,
+      publicId: image.publicId,
       order: imageIndex,
     };
   });
@@ -632,6 +678,9 @@ async function main() {
 
   // إنشاء المنتجات
   console.log(`📦 إنشاء ${menuItems.length} منتج...\n`);
+  console.log('☁️  رفع صور الـ public على Cloudinary...');
+  const uploadedImages = await uploadSeedImages();
+  console.log(`✅ تم رفع ${uploadedImages.length} صور على Cloudinary\n`);
 
   const itemsWithIds = menuItems.map((item, index) => ({
     id: randomUUID(),
@@ -677,7 +726,7 @@ async function main() {
     'menu_item_images',
     ['id', 'menu_item_id', 'url', 'public_id', 'order', 'created_at'],
     itemsWithIds.flatMap((item, itemIndex) =>
-      getItemImages(itemIndex).map((image) => [
+      getItemImages(itemIndex, uploadedImages).map((image) => [
         randomUUID(),
         item.id,
         image.url,
