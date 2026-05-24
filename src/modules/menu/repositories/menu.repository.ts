@@ -46,7 +46,7 @@ export class MenuRepository {
     const skip = (page - 1) * limit;
 
     const where: Prisma.MenuItemWhereInput = {
-      ...(category && { category: { name: { equals: category } } }),
+      ...(category && { category: { slug: { equals: category } } }),
       ...(isAvailable !== undefined && { isAvailable }),
       ...(search && {
         OR: [
