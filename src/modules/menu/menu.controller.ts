@@ -101,7 +101,7 @@ export class MenuController {
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
   @ApiQuery({
-    name: 'categoryId',
+    name: 'category',
     required: false,
     type: String,
   })

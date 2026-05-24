@@ -53,7 +53,7 @@ export class MenuService {
     return this.menuRepository.findAll({
       page: query.page ?? 1,
       limit: query.limit ?? 10,
-      categoryId: query.categoryId,
+      category: query.category,
       isAvailable: query.isAvailable,
       search: query.search,
     });

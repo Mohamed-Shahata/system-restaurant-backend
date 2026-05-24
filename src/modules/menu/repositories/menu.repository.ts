@@ -38,15 +38,15 @@ export class MenuRepository {
   async findAll(params: {
     page: number;
     limit: number;
-    categoryId?: string;
+    category?: string;
     isAvailable?: boolean;
     search?: string;
   }): Promise<IPaginatedMenuItems> {
-    const { page, limit, categoryId, isAvailable, search } = params;
+    const { page, limit, category, isAvailable, search } = params;
     const skip = (page - 1) * limit;
 
     const where: Prisma.MenuItemWhereInput = {
-      ...(categoryId && { categoryId }),
+      ...(category && { category: { name: { equals: category } } }),
       ...(isAvailable !== undefined && { isAvailable }),
       ...(search && {
         OR: [

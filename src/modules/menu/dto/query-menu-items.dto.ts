@@ -1,6 +1,13 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsBoolean, IsInt, IsOptional, IsString, IsUUID, Min } from 'class-validator';
+import {
+  IsBoolean,
+  IsInt,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Min,
+} from 'class-validator';
 
 export class QueryMenuItemsDto {
   @ApiPropertyOptional({ example: 1, description: 'رقم الصفحة', default: 1 })
@@ -22,12 +29,11 @@ export class QueryMenuItemsDto {
   limit?: number = 10;
 
   @ApiPropertyOptional({
-    example: '22222222-2222-2222-2222-222222222222',
+    example: 'pitza',
     description: 'فلترة حسب التصنيف',
   })
-  @IsUUID()
   @IsOptional()
-  categoryId?: string;
+  category?: string;
 
   @ApiPropertyOptional({
     example: true,
