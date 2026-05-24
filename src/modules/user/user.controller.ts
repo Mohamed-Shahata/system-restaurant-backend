@@ -13,14 +13,14 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { UserService } from './user.service.js';
-import { UserPublicDto } from './dto/user-public.dto.js';
-import type { IUser } from './interfaces/user.interface.js';
-import { UserRole } from './interfaces/user.interface.js';
-import { JwtAuthGuard } from '../../core/auth/guards/jwt-auth.guard.js';
-import { RolesGuard } from '../../core/auth/guards/roles.guard.js';
-import { Roles } from '../../core/auth/decorator/roles.decorator.js';
-import { CurrentUser } from '../../core/auth/decorator/current-user.decorator.js';
+import { UserService } from './user.service';
+import { UserPublicDto } from './dto/user-public.dto';
+import type { IUser } from './interfaces/user.interface';
+import { UserRole } from './interfaces/user.interface';
+import { JwtAuthGuard } from '../../core/auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../core/auth/guards/roles.guard';
+import { Roles } from '../../core/auth/decorator/roles.decorator';
+import { CurrentUser } from '../../core/auth/decorator/current-user.decorator';
 
 @ApiTags('Users')
 @ApiBearerAuth('access-token')

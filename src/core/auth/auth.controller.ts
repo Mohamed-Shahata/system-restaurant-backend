@@ -16,13 +16,13 @@ import {
 } from '@nestjs/swagger';
 import { memoryStorage } from 'multer';
 
-import { AuthService } from './auth.service.js';
-import { RegisterDto } from './dto/register.dto.js';
-import { VerifyEmailDto } from './dto/verify-email.dto.js';
-import { ResendCodeDto } from './dto/resend-code.dto.js';
-import { LoginDto } from './dto/login.dto.js';
-import { ForgotPasswordDto } from './dto/forgot-password.dto.js';
-import { ResetPasswordDto } from './dto/reset-password.dto.js';
+import { AuthService } from './auth.service';
+import { RegisterDto } from './dto/register.dto';
+import { VerifyEmailDto } from './dto/verify-email.dto';
+import { ResendCodeDto } from './dto/resend-code.dto';
+import { LoginDto } from './dto/login.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @ApiTags('Auth')
 @Controller('auth')

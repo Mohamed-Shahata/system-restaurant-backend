@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Category, MenuItem, MenuItemImage, Prisma } from '@prisma/client';
-import { PrismaService } from '../../../core/prisma/prisma.service.js';
-import { IPaginatedMenuItems } from '../interfaces/menu.interface.js';
+import { PrismaService } from '../../../core/prisma/prisma.service';
+import { IPaginatedMenuItems } from '../interfaces/menu.interface';
 
 export type MenuItemWithImages = MenuItem & {
   category: Category;
@@ -72,7 +72,9 @@ export class MenuRepository {
         ...item,
         price: Number(item.price),
         discountPercentage:
-          item.discountPercentage === null ? null : Number(item.discountPercentage),
+          item.discountPercentage === null
+            ? null
+            : Number(item.discountPercentage),
         rating: Number(item.rating),
       })),
       meta: {

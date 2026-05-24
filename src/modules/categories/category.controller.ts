@@ -19,12 +19,12 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
-import { Roles } from '../../core/auth/decorator/roles.decorator.js';
-import { JwtAuthGuard } from '../../core/auth/guards/jwt-auth.guard.js';
-import { RolesGuard } from '../../core/auth/guards/roles.guard.js';
-import { CategoryService } from './category.service.js';
-import { CreateCategoryDto } from './dto/create-category.dto.js';
-import { UpdateCategoryDto } from './dto/update-category.dto.js';
+import { Roles } from '../../core/auth/decorator/roles.decorator';
+import { JwtAuthGuard } from '../../core/auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../core/auth/guards/roles.guard';
+import { CategoryService } from './category.service';
+import { CreateCategoryDto } from './dto/create-category.dto';
+import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @ApiTags('Categories')
 @ApiBearerAuth('access-token')

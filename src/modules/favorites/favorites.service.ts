@@ -8,10 +8,10 @@ import {
   paginated,
   ApiResponse,
   PaginatedApiResponse,
-} from '../../shared/response/api-response.js';
-import { QueryFavoritesDto } from './dto/query-favorites.dto.js';
-import { IFavorite } from './interfaces/favorites.interface.js';
-import { FavoritesRepository } from './repositories/favorites.repository.js';
+} from '../../shared/response/api-response';
+import { QueryFavoritesDto } from './dto/query-favorites.dto';
+import { IFavorite } from './interfaces/favorites.interface';
+import { FavoritesRepository } from './repositories/favorites.repository';
 
 @Injectable()
 export class FavoritesService {
@@ -21,11 +21,17 @@ export class FavoritesService {
     userId: string,
     menuItemId: string,
   ): Promise<ApiResponse<IFavorite>> {
-    const itemExists = await this.favoritesRepository.menuItemExists(menuItemId);
-    if (!itemExists) throw new NotFoundException(`Menu item ${menuItemId} not found`);
+    const itemExists =
+      await this.favoritesRepository.menuItemExists(menuItemId);
+    if (!itemExists)
+      throw new NotFoundException(`Menu item ${menuItemId} not found`);
 
-    const alreadySaved = await this.favoritesRepository.exists(userId, menuItemId);
-    if (alreadySaved) throw new ConflictException('Item is already in your favorites');
+    const alreadySaved = await this.favoritesRepository.exists(
+      userId,
+      menuItemId,
+    );
+    if (alreadySaved)
+      throw new ConflictException('Item is already in your favorites');
 
     const favorite = await this.favoritesRepository.create(userId, menuItemId);
     return ok(favorite, 'Item added to favorites');
@@ -41,26 +47,33 @@ export class FavoritesService {
       limit: query.limit ?? 10,
       search: query.search,
     });
-    return paginated(result.data, result.meta, 'Favorites retrieved successfully');
+    return paginated(
+      result.data,
+      result.meta,
+      'Favorites retrieved successfully',
+    );
   }
 
   async isFavorite(
     userId: string,
     menuItemId: string,
   ): Promise<ApiResponse<{ isFavorite: boolean }>> {
-    const itemExists = await this.favoritesRepository.menuItemExists(menuItemId);
-    if (!itemExists) throw new NotFoundException(`Menu item ${menuItemId} not found`);
+    const itemExists =
+      await this.favoritesRepository.menuItemExists(menuItemId);
+    if (!itemExists)
+      throw new NotFoundException(`Menu item ${menuItemId} not found`);
 
-    const isFavorite = await this.favoritesRepository.exists(userId, menuItemId);
+    const isFavorite = await this.favoritesRepository.exists(
+      userId,
+      menuItemId,
+    );
     return ok({ isFavorite }, 'Status retrieved successfully');
   }
 
-  async remove(
-    userId: string,
-    menuItemId: string,
-  ): Promise<ApiResponse<null>> {
+  async remove(userId: string, menuItemId: string): Promise<ApiResponse<null>> {
     const exists = await this.favoritesRepository.exists(userId, menuItemId);
-    if (!exists) throw new NotFoundException('Item not found in your favorites');
+    if (!exists)
+      throw new NotFoundException('Item not found in your favorites');
 
     await this.favoritesRepository.delete(userId, menuItemId);
     return ok(null, 'Item removed from favorites');

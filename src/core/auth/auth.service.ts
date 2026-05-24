@@ -11,19 +11,19 @@ import { UserRole } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 
-import { PrismaService } from '../prisma/prisma.service.js';
-import { UserRepository } from '../../modules/user/repositories/user.repository.js';
-import { MailService } from '../../shared/mail/mail.service.js';
-import { JwtPayload } from './interfaces/jwt-payload.interface.js';
+import { PrismaService } from '../prisma/prisma.service';
+import { UserRepository } from '../../modules/user/repositories/user.repository';
+import { MailService } from '../../shared/mail/mail.service';
+import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { UserPublicDto } from '../../modules/user/dto/user-public.dto';
-import { ok } from '../../shared/response/api-response.js';
+import { ok } from '../../shared/response/api-response';
 
-import { RegisterDto } from './dto/register.dto.js';
-import { VerifyEmailDto } from './dto/verify-email.dto.js';
-import { ResendCodeDto } from './dto/resend-code.dto.js';
-import { LoginDto } from './dto/login.dto.js';
-import { ForgotPasswordDto } from './dto/forgot-password.dto.js';
-import { ResetPasswordDto } from './dto/reset-password.dto.js';
+import { RegisterDto } from './dto/register.dto';
+import { VerifyEmailDto } from './dto/verify-email.dto';
+import { ResendCodeDto } from './dto/resend-code.dto';
+import { LoginDto } from './dto/login.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 const OTP_EXPIRY_MINUTES = 10;
 const RESEND_COOLDOWN_MINUTES = 5;

@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { UserRepository } from './repositories/user.repository.js';
-import { UserPublicDto } from './dto/user-public.dto.js';
-import { IUser } from './interfaces/user.interface.js';
+import { UserRepository } from './repositories/user.repository';
+import { UserPublicDto } from './dto/user-public.dto';
+import { IUser } from './interfaces/user.interface';
 import {
   ApiResponse,
   PaginatedApiResponse,

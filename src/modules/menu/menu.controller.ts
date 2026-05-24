@@ -28,14 +28,14 @@ import {
 import { UserRole } from '@prisma/client';
 import { memoryStorage } from 'multer';
 
-import { JwtAuthGuard } from '../../core/auth/guards/jwt-auth.guard.js';
-import { RolesGuard } from '../../core/auth/guards/roles.guard.js';
-import { Roles } from '../../core/auth/decorator/roles.decorator.js';
+import { JwtAuthGuard } from '../../core/auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../core/auth/guards/roles.guard';
+import { Roles } from '../../core/auth/decorator/roles.decorator';
 
-import { MenuService } from './menu.service.js';
-import { CreateMenuItemDto } from './dto/create-menu-item.dto.js';
-import { UpdateMenuItemDto } from './dto/update-menu-item.dto.js';
-import { QueryMenuItemsDto } from './dto/query-menu-items.dto.js';
+import { MenuService } from './menu.service';
+import { CreateMenuItemDto } from './dto/create-menu-item.dto';
+import { UpdateMenuItemDto } from './dto/update-menu-item.dto';
+import { QueryMenuItemsDto } from './dto/query-menu-items.dto';
 
 // ─── Multer config: حد أقصى 5 صور، 5MB للصورة ───────────────────────────────
 const IMAGES_UPLOAD_CONFIG = {
@@ -181,8 +181,18 @@ export class MenuController {
   @Roles(UserRole.admin)
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: '[Admin] حذف صورة واحدة من الوجبة' })
-  @ApiParam({ name: 'id', type: 'string', format: 'uuid', description: 'ID الوجبة' })
-  @ApiParam({ name: 'imageId', type: 'string', format: 'uuid', description: 'ID الصورة' })
+  @ApiParam({
+    name: 'id',
+    type: 'string',
+    format: 'uuid',
+    description: 'ID الوجبة',
+  })
+  @ApiParam({
+    name: 'imageId',
+    type: 'string',
+    format: 'uuid',
+    description: 'ID الصورة',
+  })
   @ApiResponse({ status: 200, description: 'تم حذف الصورة، يرجع الوجبة محدثة' })
   @ApiResponse({ status: 404, description: 'الوجبة أو الصورة غير موجودة' })
   removeImage(
@@ -201,7 +211,10 @@ export class MenuController {
   @ApiBearerAuth('access-token')
   @ApiOperation({ summary: '[Admin] حذف كل صور الوجبة' })
   @ApiParam({ name: 'id', type: 'string', format: 'uuid' })
-  @ApiResponse({ status: 200, description: 'تم حذف كل الصور، يرجع الوجبة محدثة' })
+  @ApiResponse({
+    status: 200,
+    description: 'تم حذف كل الصور، يرجع الوجبة محدثة',
+  })
   @ApiResponse({ status: 404, description: 'الوجبة غير موجودة' })
   removeAllImages(@Param('id', ParseUUIDPipe) id: string) {
     return this.menuService.removeAllImages(id);

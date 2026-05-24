@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { PrismaService } from '../../../core/prisma/prisma.service.js';
+import { PrismaService } from '../../../core/prisma/prisma.service';
 import {
   IFavorite,
   IPaginatedFavorites,
-} from '../interfaces/favorites.interface.js';
+} from '../interfaces/favorites.interface';
 
 const MENU_ITEM_INCLUDE = {
   category: { select: { id: true, name: true, slug: true } },

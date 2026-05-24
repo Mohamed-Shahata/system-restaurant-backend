@@ -19,12 +19,12 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { JwtAuthGuard } from '../../core/auth/guards/jwt-auth.guard.js';
-import { CurrentUser } from '../../core/auth/decorator/current-user.decorator.js';
-import type { IUser } from '../user/interfaces/user.interface.js';
+import { JwtAuthGuard } from '../../core/auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../../core/auth/decorator/current-user.decorator';
+import type { IUser } from '../user/interfaces/user.interface';
 
-import { FavoritesService } from './favorites.service.js';
-import { QueryFavoritesDto } from './dto/query-favorites.dto.js';
+import { FavoritesService } from './favorites.service';
+import { QueryFavoritesDto } from './dto/query-favorites.dto';
 
 @ApiTags('Favorites')
 @Controller('favorites')

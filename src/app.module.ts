@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
-import { AppController } from './app.controller.js';
-import { AppService } from './app.service.js';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
-import { PrismaModule } from './core/prisma/prisma.module.js';
-import { AuthModule } from './core/auth/auth.module.js';
-import { UserModule } from './modules/user/user.module.js';
-import { MailModule } from './shared/mail/mail.module.js';
-import { CloudinaryModule } from './shared/cloudinary/cloudinary.module.js';
+import { PrismaModule } from './core/prisma/prisma.module';
+import { AuthModule } from './core/auth/auth.module';
+import { UserModule } from './modules/user/user.module';
+import { MailModule } from './shared/mail/mail.module';
+import { CloudinaryModule } from './shared/cloudinary/cloudinary.module';
 
 import {
   appConfig,
@@ -16,10 +16,10 @@ import {
   jwtConfig,
   mailConfig,
   cloudinaryConfig,
-} from './core/config/app.config.js';
-import { MenuModule } from './modules/menu/menu.module.js';
-import { CategoryModule } from './modules/categories/category.module.js';
-import { FavoritesModule } from './modules/favorites/favorites.module.js';
+} from './core/config/app.config';
+import { MenuModule } from './modules/menu/menu.module';
+import { CategoryModule } from './modules/categories/category.module';
+import { FavoritesModule } from './modules/favorites/favorites.module';
 
 @Module({
   imports: [

@@ -1,26 +1,3 @@
-/**
- * ─── Unified API Response ────────────────────────────────────────────────────
- *
- * كل endpoint في المشروع يرجع الداتا بالشكل ده:
- *
- * Success (single item / message-only):
- * {
- *   success: true,
- *   message: "...",
- *   data: <T> | null
- * }
- *
- * Success (paginated list):
- * {
- *   success: true,
- *   message: "...",
- *   data: <T[]>,
- *   meta: { total, page, limit, totalPages }
- * }
- *
- * الـ Error shape بيتعمل في GlobalExceptionFilter (موجود بالفعل).
- */
-
 export interface PaginationMeta {
   total: number;
   page: number;

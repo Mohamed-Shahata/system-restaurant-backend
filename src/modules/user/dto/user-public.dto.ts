@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IUser, IUserPublic, UserRole } from '../interfaces/user.interface.js';
+import { IUser, IUserPublic, UserRole } from '../interfaces/user.interface';
 
 export class UserPublicDto implements IUserPublic {
   @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000' })

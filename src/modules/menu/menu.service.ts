@@ -1,13 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CloudinaryService } from '../../shared/cloudinary/cloudinary.service.js';
-import { CreateMenuItemDto } from './dto/create-menu-item.dto.js';
-import { QueryMenuItemsDto } from './dto/query-menu-items.dto.js';
-import { UpdateMenuItemDto } from './dto/update-menu-item.dto.js';
-import { IMenuItem, IPaginatedMenuItems } from './interfaces/menu.interface.js';
+import { CloudinaryService } from '../../shared/cloudinary/cloudinary.service';
+import { CreateMenuItemDto } from './dto/create-menu-item.dto';
+import { QueryMenuItemsDto } from './dto/query-menu-items.dto';
+import { UpdateMenuItemDto } from './dto/update-menu-item.dto';
+import { IMenuItem, IPaginatedMenuItems } from './interfaces/menu.interface';
 import {
   MenuItemWithImages,
   MenuRepository,
-} from './repositories/menu.repository.js';
+} from './repositories/menu.repository';
 
 @Injectable()
 export class MenuService {
@@ -21,7 +21,8 @@ export class MenuService {
     imageFiles: Express.Multer.File[] = [],
   ): Promise<IMenuItem> {
     const hasDiscount =
-      dto.hasDiscount ?? Boolean(dto.discountPercentage && dto.discountPercentage > 0);
+      dto.hasDiscount ??
+      Boolean(dto.discountPercentage && dto.discountPercentage > 0);
     const item = await this.menuRepository.create({
       name: dto.name,
       description: dto.description,
@@ -73,7 +74,8 @@ export class MenuService {
     if (!existing) throw new NotFoundException(`Menu item ${id} not found`);
 
     const hasDiscount =
-      dto.hasDiscount ?? Boolean(dto.discountPercentage && dto.discountPercentage > 0);
+      dto.hasDiscount ??
+      Boolean(dto.discountPercentage && dto.discountPercentage > 0);
 
     await this.menuRepository.update(id, {
       ...(dto.name !== undefined && { name: dto.name }),
@@ -85,10 +87,11 @@ export class MenuService {
       ...(dto.isAvailable !== undefined && { isAvailable: dto.isAvailable }),
       ...(dto.hasDiscount !== undefined && { hasDiscount: dto.hasDiscount }),
       ...(dto.hasDiscount === false && { discountPercentage: null }),
-      ...(dto.hasDiscount !== false && dto.discountPercentage !== undefined && {
-        hasDiscount,
-        discountPercentage: dto.discountPercentage,
-      }),
+      ...(dto.hasDiscount !== false &&
+        dto.discountPercentage !== undefined && {
+          hasDiscount,
+          discountPercentage: dto.discountPercentage,
+        }),
       ...(dto.rating !== undefined && { rating: dto.rating }),
     });
 
@@ -158,7 +161,9 @@ export class MenuService {
       ...item,
       price: Number(item.price),
       discountPercentage:
-        item.discountPercentage === null ? null : Number(item.discountPercentage),
+        item.discountPercentage === null
+          ? null
+          : Number(item.discountPercentage),
       rating: Number(item.rating),
     };
   }
