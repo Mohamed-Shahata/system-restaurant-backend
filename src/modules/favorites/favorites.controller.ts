@@ -21,7 +21,7 @@ import {
 
 import { JwtAuthGuard } from '../../core/auth/guards/jwt-auth.guard.js';
 import { CurrentUser } from '../../core/auth/decorator/current-user.decorator.js';
-import { IUser } from '../user/interfaces/user.interface.js';
+import type { IUser } from '../user/interfaces/user.interface.js';
 
 import { FavoritesService } from './favorites.service.js';
 import { QueryFavoritesDto } from './dto/query-favorites.dto.js';

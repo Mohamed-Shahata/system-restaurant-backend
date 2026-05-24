@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../core/prisma/prisma.service.js';
-import { IFavorite, IPaginatedFavorites } from '../interfaces/favorites.interface.js';
+import {
+  IFavorite,
+  IPaginatedFavorites,
+} from '../interfaces/favorites.interface.js';
 
 const MENU_ITEM_INCLUDE = {
   category: { select: { id: true, name: true, slug: true } },
@@ -40,8 +43,8 @@ export class FavoritesRepository {
   }
 
   async findOne(userId: string, menuItemId: string): Promise<IFavorite | null> {
-    const row = await this.prisma.favorite.findUnique({
-      where: { userId_menuItemId: { userId, menuItemId } },
+    const row = await this.prisma.favorite.findFirst({
+      where: { userId, menuItemId },
       include: { menuItem: { include: MENU_ITEM_INCLUDE } },
     });
     return row ? this.map(row) : null;
@@ -91,8 +94,8 @@ export class FavoritesRepository {
   }
 
   async delete(userId: string, menuItemId: string): Promise<void> {
-    await this.prisma.favorite.delete({
-      where: { userId_menuItemId: { userId, menuItemId } },
+    await this.prisma.favorite.deleteMany({
+      where: { userId, menuItemId },
     });
   }
 
@@ -102,13 +105,15 @@ export class FavoritesRepository {
 
   async exists(userId: string, menuItemId: string): Promise<boolean> {
     const count = await this.prisma.favorite.count({
-      where: { userId_menuItemId: { userId, menuItemId } },
+      where: { userId, menuItemId },
     });
     return count > 0;
   }
 
   async menuItemExists(menuItemId: string): Promise<boolean> {
-    const count = await this.prisma.menuItem.count({ where: { id: menuItemId } });
+    const count = await this.prisma.menuItem.count({
+      where: { id: menuItemId },
+    });
     return count > 0;
   }
 }
