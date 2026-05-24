@@ -16,8 +16,8 @@ export class CategoryRepository {
     });
   }
 
-  findById(id: string) {
-    return this.prisma.category.findUnique({ where: { id } });
+  findByName(name: string) {
+    return this.prisma.category.findFirst({ where: { name } });
   }
 
   findBySlug(slug: string) {

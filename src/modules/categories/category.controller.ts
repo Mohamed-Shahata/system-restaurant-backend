@@ -29,7 +29,6 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 @ApiTags('Categories')
 @ApiBearerAuth('access-token')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(UserRole.admin)
 @Controller('categories')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
@@ -38,6 +37,7 @@ export class CategoryController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: '[Admin] إضافة تصنيف جديد' })
   @ApiResponse({ status: 201, description: 'تم إضافة التصنيف بنجاح' })
+  @Roles(UserRole.admin)
   create(@Body() dto: CreateCategoryDto) {
     return this.categoryService.create(dto);
   }
@@ -50,13 +50,14 @@ export class CategoryController {
     return this.categoryService.findAll();
   }
 
-  @Get(':id')
+  @Get(':name')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '[Admin] عرض تصنيف واحد' })
-  @ApiParam({ name: 'id', type: 'string', format: 'uuid' })
+  @ApiParam({ name: 'name', type: 'string' })
   @ApiResponse({ status: 200, description: 'تفاصيل التصنيف' })
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.categoryService.findOne(id);
+  @Roles(UserRole.admin)
+  findOne(@Param('name') name: string) {
+    return this.categoryService.findOne(name);
   }
 
   @Patch(':id')
@@ -64,6 +65,7 @@ export class CategoryController {
   @ApiOperation({ summary: '[Admin] تعديل تصنيف' })
   @ApiParam({ name: 'id', type: 'string', format: 'uuid' })
   @ApiResponse({ status: 200, description: 'تم تعديل التصنيف بنجاح' })
+  @Roles(UserRole.admin)
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateCategoryDto,
@@ -76,6 +78,7 @@ export class CategoryController {
   @ApiOperation({ summary: '[Admin] حذف تصنيف' })
   @ApiParam({ name: 'id', type: 'string', format: 'uuid' })
   @ApiResponse({ status: 204, description: 'تم حذف التصنيف بنجاح' })
+  @Roles(UserRole.admin)
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.categoryService.remove(id);
   }
