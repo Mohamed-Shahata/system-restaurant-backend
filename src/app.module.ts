@@ -19,6 +19,7 @@ import {
 } from './core/config/app.config.js';
 import { MenuModule } from './modules/menu/menu.module.js';
 import { CategoryModule } from './modules/categories/category.module.js';
+import { FavoritesModule } from './modules/favorites/favorites.module.js';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { CategoryModule } from './modules/categories/category.module.js';
     UserModule,
     AuthModule,
     CategoryModule,
+    FavoritesModule,
     MenuModule,
   ],
   controllers: [AppController],
