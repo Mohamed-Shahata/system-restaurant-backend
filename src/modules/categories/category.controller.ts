@@ -20,15 +20,11 @@ import {
 } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
 import { Roles } from '../../core/auth/decorator/roles.decorator';
-import { JwtAuthGuard } from '../../core/auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../../core/auth/guards/roles.guard';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @ApiTags('Categories')
-@ApiBearerAuth('access-token')
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('categories')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
@@ -44,7 +40,7 @@ export class CategoryController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: '[Admin] عرض كل التصنيفات' })
+  @ApiOperation({ summary: ' عرض كل التصنيفات' })
   @ApiResponse({ status: 200, description: 'قائمة التصنيفات' })
   findAll() {
     return this.categoryService.findAll();
