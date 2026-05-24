@@ -11,6 +11,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
+
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -18,10 +19,19 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+
 import { UserRole } from '@prisma/client';
+
 import { Roles } from '../../core/auth/decorator/roles.decorator';
+
+import { JwtAuthGuard } from '../../core/auth/guards/jwt-auth.guard';
+
+import { RolesGuard } from '../../core/auth/guards/roles.guard';
+
 import { CategoryService } from './category.service';
+
 import { CreateCategoryDto } from './dto/create-category.dto';
+
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @ApiTags('Categories')
@@ -30,6 +40,8 @@ export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Post()
+  @ApiBearerAuth('access-token')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: '[Admin] إضافة تصنيف جديد' })
   @ApiResponse({ status: 201, description: 'تم إضافة التصنيف بنجاح' })
@@ -40,13 +52,15 @@ export class CategoryController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: ' عرض كل التصنيفات' })
+  @ApiOperation({ summary: 'عرض كل التصنيفات' })
   @ApiResponse({ status: 200, description: 'قائمة التصنيفات' })
   findAll() {
     return this.categoryService.findAll();
   }
 
   @Get(':name')
+  @ApiBearerAuth('access-token')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '[Admin] عرض تصنيف واحد' })
   @ApiParam({ name: 'name', type: 'string' })
@@ -57,6 +71,8 @@ export class CategoryController {
   }
 
   @Patch(':id')
+  @ApiBearerAuth('access-token')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '[Admin] تعديل تصنيف' })
   @ApiParam({ name: 'id', type: 'string', format: 'uuid' })
@@ -70,6 +86,8 @@ export class CategoryController {
   }
 
   @Delete(':id')
+  @ApiBearerAuth('access-token')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: '[Admin] حذف تصنيف' })
   @ApiParam({ name: 'id', type: 'string', format: 'uuid' })
