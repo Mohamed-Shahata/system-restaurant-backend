@@ -5,7 +5,7 @@ import { QueryMenuItemsDto } from './dto/query-menu-items.dto';
 import { UpdateMenuItemDto } from './dto/update-menu-item.dto';
 import { IMenuItem, IPaginatedMenuItems } from './interfaces/menu.interface';
 import {
-  MenuItemWithImages,
+  MenuItemWithRelations,
   MenuRepository,
 } from './repositories/menu.repository';
 
@@ -156,7 +156,7 @@ export class MenuService {
     await this.menuRepository.delete(id);
   }
 
-  private toMenuItem(item: MenuItemWithImages): IMenuItem {
+  private toMenuItem(item: MenuItemWithRelations): IMenuItem {
     return {
       ...item,
       price: Number(item.price),
@@ -165,6 +165,11 @@ export class MenuService {
           ? null
           : Number(item.discountPercentage),
       rating: Number(item.rating),
+      addons: (item.addons ?? []).map((a) => ({
+        ...a,
+        price: Number(a.price),
+      })),
+      sizes: (item.sizes ?? []).map((s) => ({ ...s, price: Number(s.price) })),
     };
   }
 }

@@ -1,38 +1,53 @@
 import { Injectable } from '@nestjs/common';
 import { Category, MenuItem, MenuItemImage, Prisma } from '@prisma/client';
 import { PrismaService } from '../../../core/prisma/prisma.service';
-import { IPaginatedMenuItems } from '../interfaces/menu.interface';
+import {
+  IMenuItemSize,
+  IPaginatedMenuItems,
+} from '../interfaces/menu.interface';
 
-export type MenuItemWithImages = MenuItem & {
+export type MenuItemWithRelations = MenuItem & {
   category: Category;
   images: MenuItemImage[];
+  addons: {
+    id: string;
+    menuItemId: string;
+    name: string;
+    price: any;
+    createdAt: Date;
+    updatedAt: Date;
+  }[];
+  sizes: (Omit<IMenuItemSize, 'price'> & { price: any })[];
 };
 
+// Cast to any because addons/sizes are not in the generated Prisma types yet.
+// Once you run `npx prisma migrate dev --name add_addons_and_sizes` and
+// `npx prisma generate`, replace `as any` with the proper Prisma types.
 const menuItemInclude = {
   category: true,
   images: { orderBy: { order: 'asc' } },
-} satisfies Prisma.MenuItemInclude;
+  addons: { orderBy: { createdAt: 'asc' } },
+  sizes: { orderBy: { label: 'asc' } },
+} as any;
 
 @Injectable()
 export class MenuRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  // ─── Create ──────────────────────────────────────────────────────────────────
-
-  async create(data: Prisma.MenuItemCreateInput): Promise<MenuItemWithImages> {
+  async create(
+    data: Prisma.MenuItemCreateInput,
+  ): Promise<MenuItemWithRelations> {
     return this.prisma.menuItem.create({
       data,
       include: menuItemInclude,
-    });
+    }) as any;
   }
 
-  // ─── Read ────────────────────────────────────────────────────────────────────
-
-  async findById(id: string): Promise<MenuItemWithImages | null> {
+  async findById(id: string): Promise<MenuItemWithRelations | null> {
     return this.prisma.menuItem.findUnique({
       where: { id },
       include: menuItemInclude,
-    });
+    }) as any;
   }
 
   async findAll(params: {
@@ -63,12 +78,12 @@ export class MenuRepository {
         take: limit,
         orderBy: { createdAt: 'desc' },
         include: menuItemInclude,
-      }),
+      }) as any,
       this.prisma.menuItem.count({ where }),
     ]);
 
     return {
-      data: items.map((item) => ({
+      data: (items as MenuItemWithRelations[]).map((item) => ({
         ...item,
         price: Number(item.price),
         discountPercentage:
@@ -76,36 +91,27 @@ export class MenuRepository {
             ? null
             : Number(item.discountPercentage),
         rating: Number(item.rating),
+        addons: item.addons.map((a) => ({ ...a, price: Number(a.price) })),
+        sizes: item.sizes.map((s) => ({ ...s, price: Number(s.price) })),
       })),
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
+      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
     };
   }
-
-  // ─── Update ──────────────────────────────────────────────────────────────────
 
   async update(
     id: string,
     data: Prisma.MenuItemUpdateInput,
-  ): Promise<MenuItemWithImages> {
+  ): Promise<MenuItemWithRelations> {
     return this.prisma.menuItem.update({
       where: { id },
       data,
       include: menuItemInclude,
-    });
+    }) as any;
   }
-
-  // ─── Delete ──────────────────────────────────────────────────────────────────
 
   async delete(id: string): Promise<void> {
     await this.prisma.menuItem.delete({ where: { id } });
   }
-
-  // ─── Images ──────────────────────────────────────────────────────────────────
 
   async addImages(
     menuItemId: string,

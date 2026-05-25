@@ -14,6 +14,12 @@ enum UserRole {
   delivery
 }
 
+enum SizeLabel {
+  small
+  medium
+  large
+}
+
 model User {
   id                   String    @id @default(uuid()) @db.Uuid
   firstName            String    @db.VarChar(50)
@@ -86,6 +92,8 @@ model MenuItem {
   @@index([categoryId])
   @@map("menu_items")
   favorites Favorite[]
+  menuItemSizes MenuItemSize[]
+  menuItemAddons MenuItemAddon[]
 }
 
 model Category {
@@ -114,4 +122,36 @@ model MenuItemImage {
 
   @@index([menuItemId])
   @@map("menu_item_images")
+}
+
+
+
+model MenuItemAddon {
+  id         String   @id @default(uuid()) @db.Uuid
+  menuItemId String   @map("menu_item_id") @db.Uuid
+  name       String   @db.VarChar(100)
+  price      Decimal  @db.Decimal(10, 2)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  @@index([menuItemId])
+  @@map("menu_item_addons")
+}
+
+model MenuItemSize {
+  id          String     @id @default(uuid()) @db.Uuid
+  menuItemId  String     @map("menu_item_id") @db.Uuid
+  label       SizeLabel
+  price       Decimal    @db.Decimal(10, 2)
+  isAvailable Boolean    @default(true) @map("is_available")
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt   DateTime   @updatedAt @map("updated_at") @db.Timestamptz()
+
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  @@unique([menuItemId, label])
+  @@index([menuItemId])
+  @@map("menu_item_sizes")
 }

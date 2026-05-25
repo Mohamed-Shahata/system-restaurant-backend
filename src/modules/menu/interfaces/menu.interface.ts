@@ -1,4 +1,3 @@
-// ─── Core interfaces ──────────────────────────────────────────────────────────
 export interface ICategory {
   id: string;
   name: string;
@@ -18,6 +17,25 @@ export interface IMenuItemImage {
   createdAt: Date;
 }
 
+export interface IMenuItemAddon {
+  id: string;
+  menuItemId: string;
+  name: string;
+  price: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IMenuItemSize {
+  id: string;
+  menuItemId: string;
+  label: 'small' | 'medium' | 'large';
+  price: number;
+  isAvailable: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface IMenuItem {
   id: string;
   name: string;
@@ -30,6 +48,8 @@ export interface IMenuItem {
   discountPercentage: number | null;
   rating: number;
   images: IMenuItemImage[];
+  addons: IMenuItemAddon[];
+  sizes: IMenuItemSize[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -44,10 +64,12 @@ export interface IPaginatedMenuItems {
   };
 }
 
-// ─── Repository contract ──────────────────────────────────────────────────────
 export interface IMenuRepository {
   create(
-    data: Omit<IMenuItem, 'id' | 'images' | 'createdAt' | 'updatedAt'>,
+    data: Omit<
+      IMenuItem,
+      'id' | 'images' | 'addons' | 'sizes' | 'createdAt' | 'updatedAt'
+    >,
   ): Promise<IMenuItem>;
   findById(id: string): Promise<IMenuItem | null>;
   findAll(params: {
@@ -59,7 +81,12 @@ export interface IMenuRepository {
   }): Promise<IPaginatedMenuItems>;
   update(
     id: string,
-    data: Partial<Omit<IMenuItem, 'id' | 'images' | 'createdAt' | 'updatedAt'>>,
+    data: Partial<
+      Omit<
+        IMenuItem,
+        'id' | 'images' | 'addons' | 'sizes' | 'createdAt' | 'updatedAt'
+      >
+    >,
   ): Promise<IMenuItem>;
   delete(id: string): Promise<void>;
   addImages(
