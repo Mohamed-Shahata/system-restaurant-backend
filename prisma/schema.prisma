@@ -39,9 +39,9 @@ model User {
   updatedAt            DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
 
   verificationCodes VerificationCode[]
+  favorites         Favorite[]
 
   @@map("users")
-  favorites Favorite[]
 }
 
 model VerificationCode {
@@ -72,28 +72,28 @@ model Favorite {
   @@map("favorites")
 }
 
-
 model MenuItem {
-  id          String          @id @default(uuid()) @db.Uuid
-  name        String          @db.VarChar(100)
-  description String?         @db.Text
-  price       Decimal         @db.Decimal(10, 2)
-  categoryId  String          @map("category_id") @db.Uuid
-  isAvailable Boolean         @default(true) @map("is_available")
-  hasDiscount Boolean         @default(false) @map("has_discount")
+  id                 String   @id @default(uuid()) @db.Uuid
+  name               String   @db.VarChar(100)
+  description        String?  @db.Text
+  price              Decimal  @db.Decimal(10, 2)
+  categoryId         String   @map("category_id") @db.Uuid
+  isAvailable        Boolean  @default(true) @map("is_available")
+  hasDiscount        Boolean  @default(false) @map("has_discount")
   discountPercentage Decimal? @map("discount_percentage") @db.Decimal(5, 2)
-  rating      Decimal         @default(0) @db.Decimal(2, 1)
-  createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt   DateTime        @updatedAt @map("updated_at") @db.Timestamptz()
+  rating             Decimal  @default(0) @db.Decimal(2, 1)
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt          DateTime @updatedAt @map("updated_at") @db.Timestamptz()
 
-  category    Category        @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  images      MenuItemImage[]
+  category  Category        @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  images    MenuItemImage[]
+  favorites Favorite[]
+  // ✅ أسماء الـ relations اتصلحت لتتطابق مع الكود
+  sizes     MenuItemSize[]
+  addons    MenuItemAddon[]
 
   @@index([categoryId])
   @@map("menu_items")
-  favorites Favorite[]
-  menuItemSizes MenuItemSize[]
-  menuItemAddons MenuItemAddon[]
 }
 
 model Category {
@@ -105,26 +105,24 @@ model Category {
   createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz()
   updatedAt   DateTime   @updatedAt @map("updated_at") @db.Timestamptz()
 
-  menuItems   MenuItem[]
+  menuItems MenuItem[]
 
   @@map("categories")
 }
 
 model MenuItemImage {
-  id          String   @id @default(uuid()) @db.Uuid
-  menuItemId  String   @map("menu_item_id") @db.Uuid
-  url         String   @db.Text
-  publicId    String   @map("public_id") @db.Text
-  order       Int      @default(0)          
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  id         String   @id @default(uuid()) @db.Uuid
+  menuItemId String   @map("menu_item_id") @db.Uuid
+  url        String   @db.Text
+  publicId   String   @map("public_id") @db.Text
+  order      Int      @default(0)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz()
 
-  menuItem    MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
 
   @@index([menuItemId])
   @@map("menu_item_images")
 }
-
-
 
 model MenuItemAddon {
   id         String   @id @default(uuid()) @db.Uuid
@@ -141,13 +139,13 @@ model MenuItemAddon {
 }
 
 model MenuItemSize {
-  id          String     @id @default(uuid()) @db.Uuid
-  menuItemId  String     @map("menu_item_id") @db.Uuid
+  id          String    @id @default(uuid()) @db.Uuid
+  menuItemId  String    @map("menu_item_id") @db.Uuid
   label       SizeLabel
-  price       Decimal    @db.Decimal(10, 2)
-  isAvailable Boolean    @default(true) @map("is_available")
-  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz()
-  updatedAt   DateTime   @updatedAt @map("updated_at") @db.Timestamptz()
+  price       Decimal   @db.Decimal(10, 2)
+  isAvailable Boolean   @default(true) @map("is_available")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
 
   menuItem MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
 
