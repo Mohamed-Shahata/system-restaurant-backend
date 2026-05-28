@@ -20,6 +20,8 @@ import {
 import { MenuModule } from './modules/menu/menu.module';
 import { CategoryModule } from './modules/categories/category.module';
 import { FavoritesModule } from './modules/favorites/favorites.module';
+import { AddonsModule } from './modules/addons/addons.module';
+import { SizesModule } from './modules/sizes/sizes.module';
 
 @Module({
   imports: [
@@ -41,6 +43,8 @@ import { FavoritesModule } from './modules/favorites/favorites.module';
     CategoryModule,
     FavoritesModule,
     MenuModule,
+    AddonsModule,
+    SizesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
