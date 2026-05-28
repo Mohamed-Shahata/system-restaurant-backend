@@ -1047,7 +1047,7 @@ async function main() {
     'menu_item_addons',
     ['id', 'menu_item_id', 'name', 'price', 'created_at', 'updated_at'],
     allAddons,
-    { 1: 'uuid', 4: 'timestamptz', 5: 'timestamptz' },
+    { 0: 'uuid', 1: 'uuid', 4: 'timestamptz', 5: 'timestamptz' },
   );
 
   // إعداد الـ sizes
@@ -1082,7 +1082,13 @@ async function main() {
       'updated_at',
     ],
     allSizes,
-    { 1: 'uuid', 2: 'uuid', 5: 'timestamptz', 6: 'timestamptz' },
+    {
+      0: 'uuid',
+      1: 'uuid',
+      2: '"SizeLabel"',
+      5: 'timestamptz',
+      6: 'timestamptz',
+    },
   );
 
   // كل حاجة في transaction واحدة
