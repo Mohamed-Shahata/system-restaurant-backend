@@ -30,7 +30,6 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   // ─── GET /users/me ──────────────────────────────────────────────────────────
-  // لازم يجي قبل /:id عشان NestJS ميعتبرش "me" هو الـ UUID param
   @Get('me')
   @ApiOperation({ summary: 'Get current authenticated user profile' })
   @ApiResponse({

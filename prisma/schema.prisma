@@ -40,6 +40,7 @@ model User {
 
   verificationCodes VerificationCode[]
   favorites         Favorite[]
+  cart              Cart?
 
   @@map("users")
 }
@@ -88,9 +89,10 @@ model MenuItem {
   category  Category        @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   images    MenuItemImage[]
   favorites Favorite[]
-  // ✅ أسماء الـ relations اتصلحت لتتطابق مع الكود
+
   sizes     MenuItemSize[]
   addons    MenuItemAddon[]
+  cartItems CartItem[]
 
   @@index([categoryId])
   @@map("menu_items")
@@ -132,7 +134,8 @@ model MenuItemAddon {
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz()
   updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz()
 
-  menuItem MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  menuItem  MenuItem       @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  cartItems CartItemAddon[]
 
   @@index([menuItemId])
   @@map("menu_item_addons")
@@ -147,9 +150,57 @@ model MenuItemSize {
   createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz()
   updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz()
 
-  menuItem MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  menuItem  MenuItem   @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  cartItems CartItem[]
 
   @@unique([menuItemId, label])
   @@index([menuItemId])
   @@map("menu_item_sizes")
+}
+
+// ─── Cart ────────────────────────────────────────────────────────────────────
+
+model Cart {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @unique @map("user_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+
+  user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items CartItem[]
+
+  @@map("carts")
+}
+
+model CartItem {
+  id         String   @id @default(uuid()) @db.Uuid
+  cartId     String   @map("cart_id") @db.Uuid
+  menuItemId String   @map("menu_item_id") @db.Uuid
+  sizeId     String?  @map("size_id") @db.Uuid
+  quantity   Int      @default(1)
+  note       String?  @db.Text
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz()
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz()
+
+  cart     Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  menuItem MenuItem       @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  size     MenuItemSize?  @relation(fields: [sizeId], references: [id], onDelete: SetNull)
+  addons   CartItemAddon[]
+
+  @@index([cartId])
+  @@map("cart_items")
+}
+
+model CartItemAddon {
+  id         String   @id @default(uuid()) @db.Uuid
+  cartItemId String   @map("cart_item_id") @db.Uuid
+  addonId    String   @map("addon_id") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz()
+
+  cartItem CartItem      @relation(fields: [cartItemId], references: [id], onDelete: Cascade)
+  addon    MenuItemAddon @relation(fields: [addonId], references: [id], onDelete: Cascade)
+
+  @@unique([cartItemId, addonId])
+  @@index([cartItemId])
+  @@map("cart_item_addons")
 }

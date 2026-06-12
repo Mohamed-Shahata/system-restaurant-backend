@@ -18,8 +18,6 @@ export interface PaginatedApiResponse<T> {
   meta: PaginationMeta;
 }
 
-// ─── Helper functions (بتستخدمهم في الـ service أو controller) ──────────────
-
 export function ok<T>(data: T, message = 'Success'): ApiResponse<T> {
   return { success: true, message, data };
 }
