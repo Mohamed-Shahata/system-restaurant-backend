@@ -23,6 +23,7 @@ import { FavoritesModule } from './modules/favorites/favorites.module';
 import { AddonsModule } from './modules/addons/addons.module';
 import { SizesModule } from './modules/sizes/sizes.module';
 import { CartModule } from './modules/cart/cart.module';
+import { OffersModule } from './modules/offers/offers.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { CartModule } from './modules/cart/cart.module';
     AddonsModule,
     SizesModule,
     CartModule,
+    OffersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

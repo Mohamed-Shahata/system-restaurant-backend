@@ -197,8 +197,8 @@ async function uploadSeedImages(): Promise<SeedImage[]> {
   return results;
 }
 
-function getItemImages(index: number, uploadedImages: SeedImage[]) {
-  return Array.from({ length: 3 }, (_, imageIndex) => {
+function getItemImages(index: number, uploadedImages: SeedImage[], count = 3) {
+  return Array.from({ length: count }, (_, imageIndex) => {
     const image = uploadedImages[(index + imageIndex) % uploadedImages.length];
     return {
       url: image.url,
@@ -215,6 +215,7 @@ const menuItems: {
   price: number;
   category: CategorySlug;
   isAvailable: boolean;
+  imagesCount?: number; // عدد الصور لهذه الوجبة (الافتراضي 3 صور)
 }[] = [
   // ─── Appetizers (15 items) ────────────────────────────────────────────────
   {
@@ -704,7 +705,7 @@ const menuItems: {
     isAvailable: true,
   },
 
-  // ─── Side Dishes (10 items) ───────────────────────────────────────────────
+  // ─── Side Dishes (11 items) ───────────────────────────────────────────────
   {
     name: 'بطاطس مقلية',
     description:
@@ -785,6 +786,15 @@ const menuItems: {
     category: 'side_dish',
     isAvailable: true,
   },
+  {
+    name: 'تشيز فرايز',
+    description:
+      'بطاطس مقلية ذهبية مقرمشة تُغطّى بطبقة سخية من صوص الجبنة الشيدر الذائب الكريمي الساخن، وتُرشّ بالبقدونس المفروم الطازج وقليل من البابريكا. تُقدَّم فوراً ساخنة كطبق جانبي أو وجبة خفيفة بمفردها. مزيج مثالي بين القرمشة ودسامة الجبنة.',
+    price: 26.0,
+    category: 'side_dish',
+    isAvailable: true,
+    imagesCount: 1,
+  },
 ];
 
 // ─── Addons لكل وجبة ──────────────────────────────────────────────────────────
@@ -855,9 +865,8 @@ type SizeDef = {
 function getSizesForItem(
   categorySlug: CategorySlug,
   basePrice: number,
-): SizeDef[] | null {
-  // المشروبات والأطباق الجانبية والمقبلات لها sizes
-  // الحلويات والأطباق الرئيسية بعضها
+): SizeDef[] {
+  // كل الوجبات لازم يكون ليها sizes عشان الـ "size" يكون موجود دايماً في الـ response
   if (categorySlug === 'beverage') {
     return [
       {
@@ -903,8 +912,20 @@ function getSizesForItem(
       },
     ];
   }
-  // appetizer و dessert — مفيش sizes
-  return null;
+  // appetizer و dessert — كانت بدون sizes قبل كذا، دلوقتي بقى ليها أحجام كمان
+  return [
+    {
+      label: 'small',
+      price: Math.round(basePrice * 0.85 * 2) / 2,
+      isAvailable: true,
+    },
+    { label: 'medium', price: basePrice, isAvailable: true },
+    {
+      label: 'large',
+      price: Math.round(basePrice * 1.25 * 2) / 2,
+      isAvailable: true,
+    },
+  ];
 }
 
 function enrichMenuItem(item: (typeof menuItems)[number], index: number) {
@@ -1015,14 +1036,16 @@ async function main() {
     'menu_item_images',
     ['id', 'menu_item_id', 'url', 'public_id', 'order', 'created_at'],
     itemsWithIds.flatMap((item, itemIndex) =>
-      getItemImages(itemIndex, uploadedImages).map((image) => [
-        randomUUID(),
-        item.id,
-        image.url,
-        image.publicId,
-        image.order,
-        'now',
-      ]),
+      getItemImages(itemIndex, uploadedImages, item.imagesCount ?? 3).map(
+        (image) => [
+          randomUUID(),
+          item.id,
+          image.url,
+          image.publicId,
+          image.order,
+          'now',
+        ],
+      ),
     ),
     { 5: 'timestamptz' },
   );
@@ -1056,7 +1079,6 @@ async function main() {
   > = [];
   for (const item of itemsWithIds) {
     const sizes = getSizesForItem(item.category, item.price);
-    if (!sizes) continue;
     for (const size of sizes) {
       allSizes.push([
         randomUUID(),
@@ -1115,7 +1137,7 @@ async function main() {
     const addons = getAddonsForItem(item.category, item.name);
     const sizes = getSizesForItem(item.category, item.price);
     console.log(
-      `✅ [${String(index + 1).padStart(2, '0')}/${menuItems.length}] ${item.name.padEnd(22)} | ${item.category.padEnd(11)} | ${item.price} ج.م | خصم ${enriched.discountPercentage ?? 0}% | تقييم ${enriched.rating} | addons: ${addons.length} | sizes: ${sizes ? sizes.length : 0}`,
+      `✅ [${String(index + 1).padStart(2, '0')}/${menuItems.length}] ${item.name.padEnd(22)} | ${item.category.padEnd(11)} | ${item.price} ج.م | خصم ${enriched.discountPercentage ?? 0}% | تقييم ${enriched.rating} | addons: ${addons.length} | sizes: ${sizes.length}`,
     );
   }
 
