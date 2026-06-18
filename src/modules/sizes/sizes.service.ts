@@ -12,16 +12,17 @@ export class SizesService {
     const exists = await this.sizesRepository.menuItemExists(dto.menuItemId);
     if (!exists) throw new NotFoundException(`Menu item ${dto.menuItemId} not found`);
 
-    const duplicate = await this.sizesRepository.findByMenuItemAndLabel(
+    const duplicate = await this.sizesRepository.findByMenuItemAndSlug(
       dto.menuItemId,
-      dto.label,
+      dto.slug,
     );
     if (duplicate)
       throw new ConflictException(
-        `Size "${dto.label}" already exists for this menu item`,
+        `Size "${dto.slug}" already exists for this menu item`,
       );
 
     const size = await this.sizesRepository.create({
+      slug: dto.slug,
       label: dto.label,
       price: dto.price,
       isAvailable: dto.isAvailable ?? true,
@@ -50,6 +51,8 @@ export class SizesService {
 
     const updated = await this.sizesRepository.update(id, {
       ...(dto.price !== undefined && { price: dto.price }),
+      ...(dto.slug !== undefined && { slug: dto.slug }),
+      ...(dto.label !== undefined && { label: dto.label }),
       ...(dto.isAvailable !== undefined && { isAvailable: dto.isAvailable }),
     });
     return ok(updated, 'Size updated successfully');

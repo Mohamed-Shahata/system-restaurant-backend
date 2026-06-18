@@ -28,7 +28,6 @@ export class FavoritesRepository {
         id: raw.menuItem.id,
         name: raw.menuItem.name,
         description: raw.menuItem.description,
-        price: Number(raw.menuItem.price),
         hasDiscount: raw.menuItem.hasDiscount,
         discountPercentage:
           raw.menuItem.discountPercentage === null

@@ -85,7 +85,6 @@ export class MenuRepository {
     return {
       data: (items as MenuItemWithRelations[]).map((item) => ({
         ...item,
-        price: Number(item.price),
         discountPercentage:
           item.discountPercentage === null
             ? null

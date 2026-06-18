@@ -12,7 +12,6 @@ const OFFER_INCLUDE = {
         select: {
           id: true,
           name: true,
-          price: true,
           isAvailable: true,
           images: {
             select: { url: true },
@@ -46,7 +45,6 @@ function mapOffer(raw: OfferWithRelations): IOffer {
       menuItem: {
         id: item.menuItem.id,
         name: item.menuItem.name,
-        price: Number(item.menuItem.price),
         isAvailable: item.menuItem.isAvailable,
         image: item.menuItem.images[0]?.url ?? null,
       },

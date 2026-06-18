@@ -857,9 +857,16 @@ function getAddonsForItem(
 
 // ─── Sizes لكل وجبة ───────────────────────────────────────────────────────────
 type SizeDef = {
-  label: 'small' | 'medium' | 'large';
+  slug: 'small' | 'medium' | 'large';
+  label: string;
   price: number;
   isAvailable: boolean;
+};
+
+const sizeLabels: Record<SizeDef['slug'], string> = {
+  small: 'صغير',
+  medium: 'وسط',
+  large: 'كبير',
 };
 
 function getSizesForItem(
@@ -870,13 +877,15 @@ function getSizesForItem(
   if (categorySlug === 'beverage') {
     return [
       {
-        label: 'small',
+        slug: 'small',
+        label: sizeLabels.small,
         price: Math.round(basePrice * 0.8 * 2) / 2,
         isAvailable: true,
       },
-      { label: 'medium', price: basePrice, isAvailable: true },
+      { slug: 'medium', label: sizeLabels.medium, price: basePrice, isAvailable: true },
       {
-        label: 'large',
+        slug: 'large',
+        label: sizeLabels.large,
         price: Math.round(basePrice * 1.35 * 2) / 2,
         isAvailable: true,
       },
@@ -885,13 +894,15 @@ function getSizesForItem(
   if (categorySlug === 'side_dish') {
     return [
       {
-        label: 'small',
+        slug: 'small',
+        label: sizeLabels.small,
         price: Math.round(basePrice * 0.75 * 2) / 2,
         isAvailable: true,
       },
-      { label: 'medium', price: basePrice, isAvailable: true },
+      { slug: 'medium', label: sizeLabels.medium, price: basePrice, isAvailable: true },
       {
-        label: 'large',
+        slug: 'large',
+        label: sizeLabels.large,
         price: Math.round(basePrice * 1.4 * 2) / 2,
         isAvailable: true,
       },
@@ -900,13 +911,15 @@ function getSizesForItem(
   if (categorySlug === 'main_course') {
     return [
       {
-        label: 'small',
+        slug: 'small',
+        label: sizeLabels.small,
         price: Math.round(basePrice * 0.7 * 2) / 2,
         isAvailable: true,
       },
-      { label: 'medium', price: basePrice, isAvailable: true },
+      { slug: 'medium', label: sizeLabels.medium, price: basePrice, isAvailable: true },
       {
-        label: 'large',
+        slug: 'large',
+        label: sizeLabels.large,
         price: Math.round(basePrice * 1.3 * 2) / 2,
         isAvailable: false,
       },
@@ -915,13 +928,15 @@ function getSizesForItem(
   // appetizer و dessert — كانت بدون sizes قبل كذا، دلوقتي بقى ليها أحجام كمان
   return [
     {
-      label: 'small',
+      slug: 'small',
+      label: sizeLabels.small,
       price: Math.round(basePrice * 0.85 * 2) / 2,
       isAvailable: true,
     },
-    { label: 'medium', price: basePrice, isAvailable: true },
+    { slug: 'medium', label: sizeLabels.medium, price: basePrice, isAvailable: true },
     {
-      label: 'large',
+      slug: 'large',
+      label: sizeLabels.large,
       price: Math.round(basePrice * 1.25 * 2) / 2,
       isAvailable: true,
     },
@@ -1005,7 +1020,6 @@ async function main() {
       'id',
       'name',
       'description',
-      'price',
       'category_id',
       'is_available',
       'has_discount',
@@ -1018,7 +1032,6 @@ async function main() {
       item.id,
       item.name,
       item.description,
-      item.price,
       categoryIdBySlug.get(item.category) ??
         categoryIdBySlug.get('main_course')!,
       item.isAvailable,
@@ -1028,7 +1041,7 @@ async function main() {
       'now',
       'now',
     ]),
-    { 4: 'uuid', 9: 'timestamptz', 10: 'timestamptz' },
+    { 3: 'uuid', 8: 'timestamptz', 9: 'timestamptz' },
   );
 
   // bulk insert الصور
@@ -1075,7 +1088,7 @@ async function main() {
 
   // إعداد الـ sizes
   const allSizes: Array<
-    [string, string, string, number, boolean, string, string]
+    [string, string, string, string, number, boolean, string, string]
   > = [];
   for (const item of itemsWithIds) {
     const sizes = getSizesForItem(item.category, item.price);
@@ -1083,6 +1096,7 @@ async function main() {
       allSizes.push([
         randomUUID(),
         item.id,
+        size.slug,
         size.label,
         size.price,
         size.isAvailable,
@@ -1097,6 +1111,7 @@ async function main() {
     [
       'id',
       'menu_item_id',
+      'slug',
       'label',
       'price',
       'is_available',
@@ -1107,9 +1122,8 @@ async function main() {
     {
       0: 'uuid',
       1: 'uuid',
-      2: '"SizeLabel"',
-      5: 'timestamptz',
       6: 'timestamptz',
+      7: 'timestamptz',
     },
   );
 

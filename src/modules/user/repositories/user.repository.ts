@@ -6,6 +6,7 @@ import {
   IVerificationCode,
   UserRole,
 } from '../interfaces/user.interface';
+import { UpdateUserDto } from '../dto/update-user.dto';
 
 @Injectable()
 export class UserRepository implements IUserRepository {
@@ -63,8 +64,10 @@ export class UserRepository implements IUserRepository {
   }
 
   async findByPhone(phone: string): Promise<IUser | null> {
-    const row = await this.prisma.user.findUnique({
-      where: { phonePrimary: phone },
+    const row = await this.prisma.user.findFirst({
+      where: {
+        OR: [{ phonePrimary: phone }, { phoneSecondary: phone }],
+      },
     });
     return row ? this.map(row) : null;
   }
@@ -116,6 +119,35 @@ export class UserRepository implements IUserRepository {
         resetPasswordToken: null,
         resetPasswordExpires: null,
       },
+    });
+  }
+
+  async updateUserData(userId: string, data: UpdateUserDto) {
+    const { firstName, lastName, address, phonePrimary, phoneSecondary } = data;
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...(firstName !== undefined && { firstName }),
+        ...(lastName !== undefined && { lastName }),
+        ...(address !== undefined && { address }),
+        ...(phonePrimary !== undefined && { phonePrimary }),
+        ...(phoneSecondary !== undefined && { phoneSecondary }),
+      },
+    });
+  }
+
+  async updateEmail(userId: string, email: string): Promise<IUser> {
+    const row = await this.prisma.user.update({
+      where: { id: userId },
+      data: { email, isVerified: true },
+    });
+    return this.map(row);
+  }
+
+  async deleteUserAfterAvatar(userId: string): Promise<void> {
+    await this.prisma.$transaction(async (tx) => {
+      await tx.verificationCode.deleteMany({ where: { userId } });
+      await tx.user.delete({ where: { id: userId } });
     });
   }
 

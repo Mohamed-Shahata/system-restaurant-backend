@@ -2,7 +2,6 @@ export interface IFavoriteMenuItem {
   id: string;
   name: string;
   description: string | null;
-  price: number;
   discountPercentage: number | null;
   hasDiscount: boolean;
   rating: number;

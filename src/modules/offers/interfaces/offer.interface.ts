@@ -1,7 +1,6 @@
 export interface IOfferMenuItem {
   id: string;
   name: string;
-  price: number;
   isAvailable: boolean;
   image: string | null;
 }

@@ -29,7 +29,8 @@ export interface IMenuItemAddon {
 export interface IMenuItemSize {
   id: string;
   menuItemId: string;
-  label: 'small' | 'medium' | 'large';
+  slug: string;
+  label: string;
   price: number;
   isAvailable: boolean;
   createdAt: Date;
@@ -40,7 +41,6 @@ export interface IMenuItem {
   id: string;
   name: string;
   description: string | null;
-  price: number;
   categoryId: string;
   category: ICategory;
   isAvailable: boolean;

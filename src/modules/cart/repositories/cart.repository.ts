@@ -10,7 +10,6 @@ const CART_ITEM_INCLUDE = {
     select: {
       id: true,
       name: true,
-      price: true,
       isAvailable: true,
       images: {
         select: { id: true, url: true, order: true },
@@ -19,7 +18,7 @@ const CART_ITEM_INCLUDE = {
     },
   },
   size: {
-    select: { id: true, label: true, price: true },
+    select: { id: true, slug: true, label: true, price: true },
   },
   addons: {
     select: {
@@ -33,13 +32,12 @@ const CART_ITEM_INCLUDE = {
 // ─── Mappers ──────────────────────────────────────────────────────────────────
 
 function mapCartItem(raw: any): ICartItem {
-  const basePrice = Number(raw.menuItem.price);
   const sizePrice = raw.size ? Number(raw.size.price) : 0;
   const addonsPrice = raw.addons.reduce(
     (sum: number, a: any) => sum + Number(a.addon.price),
     0,
   );
-  const unitPrice = basePrice + sizePrice + addonsPrice;
+  const unitPrice = sizePrice + addonsPrice;
 
   return {
     id: raw.id,
@@ -52,13 +50,13 @@ function mapCartItem(raw: any): ICartItem {
     menuItem: {
       id: raw.menuItem.id,
       name: raw.menuItem.name,
-      price: basePrice,
       isAvailable: raw.menuItem.isAvailable,
       images: raw.menuItem.images,
     },
     size: raw.size
       ? {
           id: raw.size.id,
+          slug: raw.size.slug,
           label: raw.size.label,
           price: Number(raw.size.price),
         }

@@ -61,11 +61,10 @@ export class MenuController {
   @ApiBody({
     schema: {
       type: 'object',
-      required: ['name', 'price', 'categoryId'],
+      required: ['name', 'categoryId'],
       properties: {
         name: { type: 'string', example: 'كباب مشوي' },
         description: { type: 'string', example: 'كباب طازج مع الخضروات' },
-        price: { type: 'number', example: 89.99 },
         categoryId: {
           type: 'string',
           format: 'uuid',
@@ -145,7 +144,6 @@ export class MenuController {
       properties: {
         name: { type: 'string' },
         description: { type: 'string' },
-        price: { type: 'number' },
         categoryId: {
           type: 'string',
           format: 'uuid',

@@ -70,6 +70,9 @@ export interface IUserRepository {
     expires: Date,
   ): Promise<void>;
   updatePassword(userId: string, hashedPassword: string): Promise<void>;
+  updateEmail(userId: string, email: string): Promise<IUser>;
+  updateUserData(userId: string, data: Record<string, unknown>): Promise<void>;
+  deleteUserAfterAvatar(userId: string): Promise<void>;
   createVerificationCode(
     userId: string,
     code: string,

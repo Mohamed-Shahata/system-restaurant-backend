@@ -1,9 +1,8 @@
-import { SizeLabel } from '@prisma/client';
-
 export interface ISize {
   id: string;
   menuItemId: string;
-  label: SizeLabel;
+  slug: string;
+  label: string;
   price: number;
   isAvailable: boolean;
   createdAt: Date;

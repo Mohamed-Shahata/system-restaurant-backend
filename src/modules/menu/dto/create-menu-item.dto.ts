@@ -5,7 +5,6 @@ import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
-  IsPositive,
   IsString,
   IsUUID,
   Max,
@@ -27,12 +26,6 @@ export class CreateMenuItemDto {
   @IsString()
   @IsOptional()
   description?: string;
-
-  @ApiProperty({ example: 89.99, description: 'سعر الوجبة' })
-  @Type(() => Number)
-  @IsNumber({ maxDecimalPlaces: 2 })
-  @IsPositive()
-  price: number;
 
   @ApiProperty({
     example: '22222222-2222-2222-2222-222222222222',

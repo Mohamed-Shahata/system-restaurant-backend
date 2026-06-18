@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { MenuItemSize, Prisma, SizeLabel } from '@prisma/client';
+import { MenuItemSize, Prisma } from '@prisma/client';
 import { PrismaService } from '../../../core/prisma/prisma.service';
 
 @Injectable()
@@ -18,7 +18,7 @@ export class SizesRepository {
   async findAllByMenuItem(menuItemId: string) {
     const rows = await this.prisma.menuItemSize.findMany({
       where: { menuItemId },
-      orderBy: { label: 'asc' },
+      orderBy: { slug: 'asc' },
     });
     return rows.map((r) => this.map(r));
   }
@@ -27,11 +27,11 @@ export class SizesRepository {
     return this.prisma.menuItemSize.findUnique({ where: { id } });
   }
 
-  async findByMenuItemAndLabel(
+  async findByMenuItemAndSlug(
     menuItemId: string,
-    label: SizeLabel,
+    slug: string,
   ): Promise<MenuItemSize | null> {
-    return this.prisma.menuItemSize.findFirst({ where: { menuItemId, label } });
+    return this.prisma.menuItemSize.findFirst({ where: { menuItemId, slug } });
   }
 
   async update(id: string, data: Prisma.MenuItemSizeUpdateInput) {

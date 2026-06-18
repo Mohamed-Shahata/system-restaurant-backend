@@ -1,8 +1,14 @@
 import {
   Controller,
+  Body,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseUUIDPipe,
+  Patch,
+  Post,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -21,6 +27,9 @@ import { JwtAuthGuard } from '../../core/auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../../core/auth/guards/roles.guard';
 import { Roles } from '../../core/auth/decorator/roles.decorator';
 import { CurrentUser } from '../../core/auth/decorator/current-user.decorator';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { RequestEmailChangeDto } from './dto/request-email-change.dto';
+import { VerifyEmailChangeDto } from './dto/verify-email-change.dto';
 
 @ApiTags('Users')
 @ApiBearerAuth('access-token')
@@ -59,6 +68,42 @@ export class UserController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   getMe(@CurrentUser() user: IUser) {
     return this.userService.getMe(user);
+  }
+
+  @Patch('me')
+  @ApiOperation({ summary: 'Update current authenticated user profile' })
+  @ApiResponse({ status: 200, description: 'User updated successfully' })
+  updateMe(@CurrentUser() user: IUser, @Body() dto: UpdateUserDto) {
+    return this.userService.update(user.id, dto);
+  }
+
+  @Post('me/email')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Send OTP to a new email before changing it' })
+  @ApiResponse({ status: 200, description: 'Verification code sent' })
+  requestEmailChange(
+    @CurrentUser() user: IUser,
+    @Body() dto: RequestEmailChangeDto,
+  ) {
+    return this.userService.requestEmailChange(user.id, dto);
+  }
+
+  @Patch('me/email')
+  @ApiOperation({ summary: 'Verify OTP and update current user email' })
+  @ApiResponse({ status: 200, description: 'Email updated successfully' })
+  verifyEmailChange(
+    @CurrentUser() user: IUser,
+    @Body() dto: VerifyEmailChangeDto,
+  ) {
+    return this.userService.verifyEmailChange(user.id, dto);
+  }
+
+  @Delete('me')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete current authenticated user account' })
+  @ApiResponse({ status: 200, description: 'User deleted successfully' })
+  removeMe(@CurrentUser() user: IUser) {
+    return this.userService.removeMe(user.id);
   }
 
   // ─── GET /users ─────────────────────────────────────────────────────────────

@@ -26,7 +26,6 @@ export class MenuService {
     const item = await this.menuRepository.create({
       name: dto.name,
       description: dto.description,
-      price: dto.price,
       category: { connect: { id: dto.categoryId } },
       isAvailable: dto.isAvailable ?? true,
       hasDiscount,
@@ -80,7 +79,6 @@ export class MenuService {
     await this.menuRepository.update(id, {
       ...(dto.name !== undefined && { name: dto.name }),
       ...(dto.description !== undefined && { description: dto.description }),
-      ...(dto.price !== undefined && { price: dto.price }),
       ...(dto.categoryId !== undefined && {
         category: { connect: { id: dto.categoryId } },
       }),
@@ -159,7 +157,6 @@ export class MenuService {
   private toMenuItem(item: MenuItemWithRelations): IMenuItem {
     return {
       ...item,
-      price: Number(item.price),
       discountPercentage:
         item.discountPercentage === null
           ? null

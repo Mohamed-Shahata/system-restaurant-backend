@@ -16,12 +16,12 @@ export interface ICartItem {
   menuItem: {
     id: string;
     name: string;
-    price: number;
     isAvailable: boolean;
     images: { id: string; url: string; order: number }[];
   };
   size: {
     id: string;
+    slug: string;
     label: string;
     price: number;
   } | null;

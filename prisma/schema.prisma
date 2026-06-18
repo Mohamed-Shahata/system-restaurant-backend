@@ -14,12 +14,6 @@ enum UserRole {
   delivery
 }
 
-enum SizeLabel {
-  small
-  medium
-  large
-}
-
 model User {
   id                   String    @id @default(uuid()) @db.Uuid
   firstName            String    @db.VarChar(50)
@@ -77,7 +71,6 @@ model MenuItem {
   id                 String   @id @default(uuid()) @db.Uuid
   name               String   @db.VarChar(100)
   description        String?  @db.Text
-  price              Decimal  @db.Decimal(10, 2)
   categoryId         String   @map("category_id") @db.Uuid
   isAvailable        Boolean  @default(true) @map("is_available")
   hasDiscount        Boolean  @default(false) @map("has_discount")
@@ -145,7 +138,8 @@ model MenuItemAddon {
 model MenuItemSize {
   id          String    @id @default(uuid()) @db.Uuid
   menuItemId  String    @map("menu_item_id") @db.Uuid
-  label       SizeLabel
+  slug        String    @db.VarChar(50)
+  label       String    @db.VarChar(50)
   price       Decimal   @db.Decimal(10, 2)
   isAvailable Boolean   @default(true) @map("is_available")
   createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz()
@@ -154,7 +148,7 @@ model MenuItemSize {
   menuItem  MenuItem   @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
   cartItems CartItem[]
 
-  @@unique([menuItemId, label])
+  @@unique([menuItemId, slug])
   @@index([menuItemId])
   @@map("menu_item_sizes")
 }
