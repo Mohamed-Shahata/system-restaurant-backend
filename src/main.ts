@@ -3,26 +3,26 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './shared/exceptions/http-exception.filter';
-import { ExpressAdapter } from '@nestjs/platform-express';
-import express from 'express';
-
-const server = express();
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
+  const app = await NestFactory.create(AppModule);
 
+  // Global Prefix
   app.setGlobalPrefix('api/v1');
 
+  // CORS
   app.enableCors({
     origin: [
       process.env.FRONTEND_URL_LOCAL || 'http://localhost:5173',
       process.env.FRONTEND_URL_PRODUCTION,
-    ].filter(Boolean),
+    ].filter((origin): origin is string => Boolean(origin)),
     credentials: true,
   });
 
+  // Global Exception Filter
   app.useGlobalFilters(new GlobalExceptionFilter());
 
+  // Validation
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -31,6 +31,7 @@ async function bootstrap() {
     }),
   );
 
+  // Swagger
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Restaurant API')
     .setDescription('Restaurant management system — Auth endpoints')
@@ -42,11 +43,14 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api/docs', app, document);
+  SwaggerModule.setup('api/docs', app, document, {
+    swaggerOptions: { persistAuthorization: true },
+  });
 
-  await app.init();
+  const port = process.env.PORT ?? 3000;
+  await app.listen(port);
+  console.log(`🚀 Server running on ${process.env.BACKEND_URL}/api/v1`);
+  console.log(`📚 Swagger docs at ${process.env.BACKEND_URL}/api/docs`);
 }
 
 bootstrap();
-
-export default server;
