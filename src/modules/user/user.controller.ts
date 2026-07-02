@@ -10,9 +10,14 @@ import {
   Patch,
   Post,
   UseGuards,
+  Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiOperation,
   ApiParam,
   ApiResponse,
@@ -30,6 +35,8 @@ import { CurrentUser } from '../../core/auth/decorator/current-user.decorator';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { RequestEmailChangeDto } from './dto/request-email-change.dto';
 import { VerifyEmailChangeDto } from './dto/verify-email-change.dto';
+import { RemoveAvatarDto } from './dto/removeAvatar.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Users')
 @ApiBearerAuth('access-token')
@@ -104,6 +111,70 @@ export class UserController {
   @ApiResponse({ status: 200, description: 'User deleted successfully' })
   removeMe(@CurrentUser() user: IUser) {
     return this.userService.removeMe(user.id);
+  }
+
+  // ─── POST /users/me/avatar ──────────────────────────────────────────────────
+  @Post('me/avatar')
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiOperation({ summary: 'Upload current user avatar' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['file'],
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'Avatar image',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Avatar uploaded successfully',
+    schema: {
+      example: {
+        success: true,
+        message: 'Avatar uploaded successfully',
+        data: {
+          avatarUrl: 'https://res.cloudinary.com/demo/image/upload/avatar.jpg',
+          publicId: 'users/avatar_abc123',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Invalid file' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  uploadAvatar(
+    @CurrentUser() user: IUser,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.userService.uploadAvatar(user.id, file);
+  }
+
+  // ─── DELETE /users/me/avatar ────────────────────────────────────────────────
+  @Delete('me/avatar')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Delete current user avatar' })
+  @ApiBody({
+    type: RemoveAvatarDto,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Avatar deleted successfully',
+    schema: {
+      example: {
+        success: true,
+        message: 'Avatar deleted successfully',
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Invalid public ID' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  removeAvatar(@CurrentUser() user: IUser, @Body() dto: RemoveAvatarDto) {
+    return this.userService.removeAvatar(user.id, dto.publicId);
   }
 
   // ─── GET /users ─────────────────────────────────────────────────────────────

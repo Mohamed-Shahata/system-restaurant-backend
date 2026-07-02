@@ -96,7 +96,11 @@ export class UserService {
       code,
       this.getExpiryDate(OTP_EXPIRY_MINUTES),
     );
-    await this.mailService.sendVerificationCode(dto.email, user.firstName, code);
+    await this.mailService.sendVerificationCode(
+      dto.email,
+      user.firstName,
+      code,
+    );
 
     return ok(null, 'Verification code sent to the new email.');
   }
@@ -145,6 +149,37 @@ export class UserService {
     return ok(UserPublicDto.from(user), 'User retrieved successfully');
   }
 
+  async uploadAvatar(userId: string, file: Express.Multer.File) {
+    const user = await this.userRepository.findById(userId);
+    if (!user)
+      throw new NotFoundException(`User with id "${userId}" not found`);
+
+    if (user.avatarPublicId)
+      await this.cloudinaryService.deleteImage(user.avatarPublicId);
+
+    const result = await this.cloudinaryService.uploadImage(file.buffer);
+
+    user.avatarPublicId = result.publicId;
+    user.avatarUrl = result.url;
+
+    return { message: 'upload avatar successfully' };
+  }
+
+  async removeAvatar(userId: string, publicId: string) {
+    const user = await this.userRepository.findById(userId);
+    if (!user)
+      throw new NotFoundException(`User with id "${userId}" not found`);
+
+    if (!user.avatarPublicId)
+      throw new NotFoundException(`There are no photos to delete.`);
+
+    await this.cloudinaryService.deleteImage(publicId);
+
+    user.avatarPublicId = null;
+
+    return { message: 'remove avatar successfully' };
+  }
+
   private async ensurePhonesAreAvailable(userId: string, dto: UpdateUserDto) {
     if (dto.phonePrimary) {
       const existing = await this.userRepository.findByPhone(dto.phonePrimary);
@@ -152,7 +187,9 @@ export class UserService {
         throw new ConflictException('Phone number already in use');
     }
     if (dto.phoneSecondary) {
-      const existing = await this.userRepository.findByPhone(dto.phoneSecondary);
+      const existing = await this.userRepository.findByPhone(
+        dto.phoneSecondary,
+      );
       if (existing && existing.id !== userId)
         throw new ConflictException('Secondary phone number already in use');
     }
@@ -171,10 +208,15 @@ export class UserService {
   }
 
   private generateJwt(user: IUser): string {
-    const payload: JwtPayload = { sub: user.id, email: user.email, role: user.role };
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    };
     return this.jwtService.sign(payload, {
       secret: this.configService.get<string>('jwt.secret'),
-      expiresIn: (this.configService.get<string>('jwt.expiresIn') ?? '7d') as any,
+      expiresIn: (this.configService.get<string>('jwt.expiresIn') ??
+        '7d') as any,
     });
   }
 }

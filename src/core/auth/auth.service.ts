@@ -79,15 +79,15 @@ export class AuthService {
         data: { userId: user.id, code, expiresAt: codeExpiresAt },
       });
 
-      await this.mailService.sendVerificationCode(
-        dto.email,
-        dto.firstName,
-        code,
-      );
+      // await this.mailService.sendVerificationCode(
+      //   dto.email,
+      //   dto.firstName,
+      //   code,
+      // );
     });
 
     return ok(
-      null,
+      {code},
       'Registration successful. Please check your email for the verification code.',
     );
   }
