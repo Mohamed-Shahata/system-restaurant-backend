@@ -100,6 +100,13 @@ export class UserRepository implements IUserRepository {
     });
   }
 
+  async removeAvatar(userId: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { avatarUrl: null, avatarPublicId: null },
+    });
+  }
+
   async setResetPasswordToken(
     userId: string,
     token: string,

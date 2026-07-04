@@ -10,7 +10,6 @@ import {
   Patch,
   Post,
   UseGuards,
-  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';

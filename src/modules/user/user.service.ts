@@ -21,6 +21,7 @@ import { VerifyEmailChangeDto } from './dto/verify-email-change.dto';
 import { MailService } from '../../shared/mail/mail.service';
 import { CloudinaryService } from '../../shared/cloudinary/cloudinary.service';
 import { JwtPayload } from '../../core/auth/interfaces/jwt-payload.interface';
+import type { StringValue } from 'ms';
 
 const OTP_EXPIRY_MINUTES = 10;
 const RESEND_COOLDOWN_MINUTES = 5;
@@ -56,9 +57,9 @@ export class UserService {
   }
 
   async update(userId: string, dto: UpdateUserDto) {
-    const userExesting = await this.userRepository.findById(userId);
+    const userEgesting = await this.userRepository.findById(userId);
 
-    if (!userExesting) throw new BadRequestException('User not found');
+    if (!userEgesting) throw new BadRequestException('User not found');
     await this.ensurePhonesAreAvailable(userId, dto);
 
     await this.userRepository.updateUserData(userId, dto);
@@ -159,8 +160,7 @@ export class UserService {
 
     const result = await this.cloudinaryService.uploadImage(file.buffer);
 
-    user.avatarPublicId = result.publicId;
-    user.avatarUrl = result.url;
+    await this.userRepository.updateAvatar(userId, result.url, result.publicId);
 
     return { message: 'upload avatar successfully' };
   }
@@ -175,7 +175,7 @@ export class UserService {
 
     await this.cloudinaryService.deleteImage(publicId);
 
-    user.avatarPublicId = null;
+    await this.userRepository.removeAvatar(userId);
 
     return { message: 'remove avatar successfully' };
   }
@@ -215,8 +215,7 @@ export class UserService {
     };
     return this.jwtService.sign(payload, {
       secret: this.configService.get<string>('jwt.secret'),
-      expiresIn: (this.configService.get<string>('jwt.expiresIn') ??
-        '7d') as any,
+      expiresIn: this.configService.get<StringValue>('jwt.expiresIn'),
     });
   }
 }
