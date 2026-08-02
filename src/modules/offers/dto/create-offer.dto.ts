@@ -12,7 +12,10 @@ import {
   IsUUID,
   MaxLength,
 } from 'class-validator';
-import { toBoolean, toStringArray } from './transform.helpers';
+import {
+  toBoolean,
+  toStringArray,
+} from '../../../shared/transformers/form-data.transformers';
 
 export class CreateOfferDto {
   @ApiProperty({

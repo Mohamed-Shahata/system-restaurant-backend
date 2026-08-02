@@ -37,9 +37,10 @@ export class AuthController {
   @ApiBody({
     schema: {
       type: 'object',
-      required: ['name', 'email', 'password', 'phone_primary'],
+      required: ['firstName', 'lastName', 'email', 'password', 'phone_primary'],
       properties: {
-        name: { type: 'string', example: 'Ahmed Mohamed' },
+        firstName: { type: 'string', example: 'Ahmed Mohamed' },
+        lastName: { type: 'string', example: 'Ahmed Mohamed' },
         email: { type: 'string', example: 'ahmed@example.com' },
         password: { type: 'string', example: 'Password@123' },
         phone_primary: { type: 'string', example: '01012345678' },

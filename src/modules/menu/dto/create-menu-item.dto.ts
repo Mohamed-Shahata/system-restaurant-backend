@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsBoolean,
   IsNotEmpty,
@@ -11,6 +11,7 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
+import { toBoolean } from '../../../shared/transformers/form-data.transformers';
 
 export class CreateMenuItemDto {
   @ApiProperty({ example: 'كباب مشوي', description: 'اسم الوجبة' })
@@ -35,11 +36,13 @@ export class CreateMenuItemDto {
   categoryId: string;
 
   @ApiPropertyOptional({ example: true, description: 'هل الوجبة متاحة؟' })
+  @Transform(toBoolean)
   @IsBoolean()
   @IsOptional()
   isAvailable?: boolean;
 
   @ApiPropertyOptional({ example: true, description: 'هل الوجبة عليها خصم؟' })
+  @Transform(toBoolean)
   @IsBoolean()
   @IsOptional()
   hasDiscount?: boolean;

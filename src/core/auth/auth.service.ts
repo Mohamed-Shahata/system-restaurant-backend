@@ -87,7 +87,7 @@ export class AuthService {
     });
 
     return ok(
-      {code},
+      { code },
       'Registration successful. Please check your email for the verification code.',
     );
   }

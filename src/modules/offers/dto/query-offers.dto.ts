@@ -1,7 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import { IsBoolean, IsInt, IsOptional, Min } from 'class-validator';
-import { toBoolean } from './transform.helpers';
+import { toBoolean } from '../../../shared/transformers/form-data.transformers';
 
 export class QueryOffersDto {
   @ApiPropertyOptional({ example: 1, description: 'رقم الصفحة', default: 1 })
