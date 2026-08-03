@@ -74,10 +74,7 @@ export class AddonsController {
   @ApiParam({ name: 'id', type: 'string', format: 'uuid' })
   @ApiResponse({ status: 200, description: 'Addon updated successfully' })
   @ApiResponse({ status: 404, description: 'Addon not found' })
-  update(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() dto: UpdateAddonDto,
-  ) {
+  update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateAddonDto) {
     return this.addonsService.update(id, dto);
   }
 

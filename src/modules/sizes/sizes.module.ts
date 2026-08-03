@@ -6,6 +6,6 @@ import { SizesRepository } from './repositories/sizes.repository';
 @Module({
   controllers: [SizesController],
   providers: [SizesService, SizesRepository],
-  exports: [SizesService],
+  exports: [SizesService, SizesRepository],
 })
 export class SizesModule {}

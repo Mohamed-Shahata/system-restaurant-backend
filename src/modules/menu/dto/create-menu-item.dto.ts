@@ -5,6 +5,7 @@ import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
+  IsPositive,
   IsString,
   IsUUID,
   Max,
@@ -65,4 +66,22 @@ export class CreateMenuItemDto {
   @Max(5)
   @IsOptional()
   rating?: number;
+
+  // ================================= size dto ========================================= //
+
+  @ApiProperty({ example: 'small', description: 'English size slug' })
+  @IsString()
+  @MaxLength(50)
+  slug: string;
+
+  @ApiProperty({ example: 'صغير', description: 'Arabic size label' })
+  @IsString()
+  @MaxLength(50)
+  label: string;
+
+  @ApiProperty({ example: 12.0, description: 'Price for this size' })
+  @Type(() => Number)
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @IsPositive()
+  price: number;
 }

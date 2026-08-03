@@ -8,12 +8,16 @@ import {
   MenuItemWithRelations,
   MenuRepository,
 } from './repositories/menu.repository';
+import { SizesRepository } from '../sizes/repositories/sizes.repository';
+import { PrismaService } from '../../core/prisma/prisma.service';
 
 @Injectable()
 export class MenuService {
   constructor(
     private readonly menuRepository: MenuRepository,
     private readonly cloudinaryService: CloudinaryService,
+    private readonly sizesRepository: SizesRepository,
+    private readonly prisma: PrismaService,
   ) {}
 
   async create(
@@ -23,29 +27,75 @@ export class MenuService {
     const hasDiscount =
       dto.hasDiscount ??
       Boolean(dto.discountPercentage && dto.discountPercentage > 0);
-    const item = await this.menuRepository.create({
-      name: dto.name,
-      description: dto.description,
-      category: { connect: { id: dto.categoryId } },
-      isAvailable: dto.isAvailable ?? true,
-      hasDiscount,
-      discountPercentage: hasDiscount ? (dto.discountPercentage ?? 0) : null,
-      rating: dto.rating ?? 0,
-    });
 
+    // ارفع الصور على Cloudinary قبل الـ DB transaction
+    // (Cloudinary مش جزء من قاعدة البيانات فمينفعش يبقى جوه $transaction)
+    let uploadedImages: { url: string; publicId: string }[] = [];
     if (imageFiles.length > 0) {
-      const uploaded = await this.cloudinaryService.uploadImages(
+      uploadedImages = await this.cloudinaryService.uploadImages(
         imageFiles.map((f) => f.buffer),
         'restaurant/menu-items',
       );
-      await this.menuRepository.addImages(
-        item.id,
-        uploaded.map(({ url, publicId }, i) => ({ url, publicId, order: i })),
-      );
     }
 
-    const full = await this.menuRepository.findById(item.id);
-    return this.toMenuItem(full!);
+    try {
+      const itemId = await this.prisma.$transaction(async (tx) => {
+        const item = await this.menuRepository.create(
+          {
+            name: dto.name,
+            description: dto.description,
+            category: { connect: { id: dto.categoryId } },
+            isAvailable: dto.isAvailable ?? true,
+            hasDiscount,
+            discountPercentage: hasDiscount
+              ? (dto.discountPercentage ?? 0)
+              : null,
+            rating: dto.rating ?? 0,
+          },
+          tx,
+        );
+
+        await this.sizesRepository.create(
+          {
+            menuItem: { connect: { id: item.id } },
+            label: dto.label,
+            price: dto.price,
+            slug: dto.slug,
+            isAvailable: true,
+            createdAt: new Date(),
+          },
+          tx,
+        );
+
+        if (uploadedImages.length > 0) {
+          await this.menuRepository.addImages(
+            item.id,
+            uploadedImages.map(({ url, publicId }, i) => ({
+              url,
+              publicId,
+              order: i,
+            })),
+            tx,
+          );
+        }
+
+        return item.id;
+      });
+
+      const full = await this.menuRepository.findById(itemId);
+      return this.toMenuItem(full!);
+    } catch (error) {
+      // لو الـ DB transaction فشلت، امسح أي صور اترفعت على Cloudinary
+      // عشان منسيبش orphan files هناك
+      if (uploadedImages.length > 0) {
+        await Promise.all(
+          uploadedImages.map((img) =>
+            this.cloudinaryService.deleteImage(img.publicId),
+          ),
+        );
+      }
+      throw error;
+    }
   }
 
   async findAll(query: QueryMenuItemsDto): Promise<IPaginatedMenuItems> {

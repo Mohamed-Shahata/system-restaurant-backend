@@ -10,8 +10,12 @@ export class SizesRepository {
     return { ...row, price: Number(row.price) };
   }
 
-  async create(data: Prisma.MenuItemSizeCreateInput) {
-    const row = await this.prisma.menuItemSize.create({ data });
+  async create(
+    data: Prisma.MenuItemSizeCreateInput,
+    tx?: Prisma.TransactionClient,
+  ) {
+    const client = tx ?? this.prisma;
+    const row = await client.menuItemSize.create({ data });
     return this.map(row);
   }
 
@@ -44,7 +48,9 @@ export class SizesRepository {
   }
 
   async menuItemExists(menuItemId: string): Promise<boolean> {
-    const count = await this.prisma.menuItem.count({ where: { id: menuItemId } });
+    const count = await this.prisma.menuItem.count({
+      where: { id: menuItemId },
+    });
     return count > 0;
   }
 }
