@@ -30,8 +30,6 @@ export class MenuService {
       dto.hasDiscount ??
       Boolean(dto.discountPercentage && dto.discountPercentage > 0);
 
-    // ارفع الصور على Cloudinary قبل الـ DB transaction
-    // (Cloudinary مش جزء من قاعدة البيانات فمينفعش يبقى جوه $transaction)
     let uploadedImages: { url: string; publicId: string }[] = [];
     if (imageFiles.length > 0) {
       uploadedImages = await this.cloudinaryService.uploadImages(

@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Transform, Type } from 'class-transformer';
+import { Transform, Type, plainToInstance } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
@@ -83,22 +83,27 @@ export class CreateMenuItemDto {
       { slug: 'large', label: 'كبير', price: 18 },
     ],
   })
-  @Transform(toJsonArray)
+  @Transform(({ value }) => {
+    const parsed = toJsonArray({ value });
+    if (!Array.isArray(parsed)) return parsed;
+    return parsed.map((item) => plainToInstance(CreateMenuItemSizeDto, item));
+  })
   @IsArray()
   @ArrayMinSize(1, { message: 'لازم تضيف حجم واحد على الأقل' })
   @ValidateNested({ each: true })
   @Type(() => CreateMenuItemSizeDto)
   sizes: CreateMenuItemSizeDto[];
 
-  // ================================= addons ========================================= //
-  // اختياري. بتوصل بنفس طريقة sizes كـ JSON string.
-
   @ApiPropertyOptional({
     type: [CreateMenuItemAddonDto],
     description: 'الإضافات الاختيارية للوجبة',
     example: [{ name: 'صوص ثوم', price: 5.5 }],
   })
-  @Transform(toJsonArray)
+  @Transform(({ value }) => {
+    const parsed = toJsonArray({ value });
+    if (!Array.isArray(parsed)) return parsed;
+    return parsed.map((item) => plainToInstance(CreateMenuItemAddonDto, item));
+  })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
