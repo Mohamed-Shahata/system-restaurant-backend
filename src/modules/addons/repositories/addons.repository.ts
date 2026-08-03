@@ -10,8 +10,12 @@ export class AddonsRepository {
     return { ...row, price: Number(row.price) };
   }
 
-  async create(data: Prisma.MenuItemAddonCreateInput) {
-    const row = await this.prisma.menuItemAddon.create({ data });
+  async create(
+    data: Prisma.MenuItemAddonCreateInput,
+    tx?: Prisma.TransactionClient,
+  ) {
+    const client = tx ?? this.prisma;
+    const row = await client.menuItemAddon.create({ data });
     return this.map(row);
   }
 
@@ -37,7 +41,9 @@ export class AddonsRepository {
   }
 
   async menuItemExists(menuItemId: string): Promise<boolean> {
-    const count = await this.prisma.menuItem.count({ where: { id: menuItemId } });
+    const count = await this.prisma.menuItem.count({
+      where: { id: menuItemId },
+    });
     return count > 0;
   }
 }

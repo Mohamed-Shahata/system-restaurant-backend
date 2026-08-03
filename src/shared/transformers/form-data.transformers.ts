@@ -41,3 +41,16 @@ function tryParseJsonArray(input: string): unknown[] | null {
     return null;
   }
 }
+
+export function toJsonArray({ value }: { value: unknown }): unknown {
+  if (Array.isArray(value)) return value;
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) return [];
+    const parsed = tryParseJsonArray(trimmed);
+    if (parsed) return parsed;
+  }
+
+  return value;
+}

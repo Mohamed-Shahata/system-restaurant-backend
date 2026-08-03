@@ -6,6 +6,6 @@ import { AddonsRepository } from './repositories/addons.repository';
 @Module({
   controllers: [AddonsController],
   providers: [AddonsService, AddonsRepository],
-  exports: [AddonsService],
+  exports: [AddonsService, AddonsRepository],
 })
 export class AddonsModule {}

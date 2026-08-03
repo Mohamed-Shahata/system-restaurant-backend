@@ -9,6 +9,7 @@ import {
   MenuRepository,
 } from './repositories/menu.repository';
 import { SizesRepository } from '../sizes/repositories/sizes.repository';
+import { AddonsRepository } from '../addons/repositories/addons.repository';
 import { PrismaService } from '../../core/prisma/prisma.service';
 
 @Injectable()
@@ -17,6 +18,7 @@ export class MenuService {
     private readonly menuRepository: MenuRepository,
     private readonly cloudinaryService: CloudinaryService,
     private readonly sizesRepository: SizesRepository,
+    private readonly addonsRepository: AddonsRepository,
     private readonly prisma: PrismaService,
   ) {}
 
@@ -55,17 +57,32 @@ export class MenuService {
           tx,
         );
 
-        await this.sizesRepository.create(
-          {
-            menuItem: { connect: { id: item.id } },
-            label: dto.label,
-            price: dto.price,
-            slug: dto.slug,
-            isAvailable: true,
-            createdAt: new Date(),
-          },
-          tx,
-        );
+        for (const size of dto.sizes) {
+          await this.sizesRepository.create(
+            {
+              menuItem: { connect: { id: item.id } },
+              label: size.label,
+              price: size.price,
+              slug: size.slug,
+              isAvailable: size.isAvailable ?? true,
+              createdAt: new Date(),
+            },
+            tx,
+          );
+        }
+
+        if (dto.addons && dto.addons.length > 0) {
+          for (const addon of dto.addons) {
+            await this.addonsRepository.create(
+              {
+                menuItem: { connect: { id: item.id } },
+                name: addon.name,
+                price: addon.price,
+              },
+              tx,
+            );
+          }
+        }
 
         if (uploadedImages.length > 0) {
           await this.menuRepository.addImages(

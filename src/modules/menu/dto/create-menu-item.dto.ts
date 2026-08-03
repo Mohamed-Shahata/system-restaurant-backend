@@ -1,18 +1,25 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import {
+  ArrayMinSize,
+  IsArray,
   IsBoolean,
   IsNotEmpty,
   IsNumber,
   IsOptional,
-  IsPositive,
   IsString,
   IsUUID,
   Max,
   MaxLength,
   Min,
+  ValidateNested,
 } from 'class-validator';
-import { toBoolean } from '../../../shared/transformers/form-data.transformers';
+import {
+  toBoolean,
+  toJsonArray,
+} from '../../../shared/transformers/form-data.transformers';
+import { CreateMenuItemAddonDto } from './create-menu-item-addon.dto';
+import { CreateMenuItemSizeDto } from './create-menu-item-size.dto';
 
 export class CreateMenuItemDto {
   @ApiProperty({ example: 'كباب مشوي', description: 'اسم الوجبة' })
@@ -67,21 +74,34 @@ export class CreateMenuItemDto {
   @IsOptional()
   rating?: number;
 
-  // ================================= size dto ========================================= //
+  @ApiProperty({
+    type: [CreateMenuItemSizeDto],
+    description: 'الأحجام المتاحة للوجبة، على الأقل حجم واحد',
+    example: [
+      { slug: 'small', label: 'صغير', price: 12 },
+      { slug: 'medium', label: 'وسط', price: 15 },
+      { slug: 'large', label: 'كبير', price: 18 },
+    ],
+  })
+  @Transform(toJsonArray)
+  @IsArray()
+  @ArrayMinSize(1, { message: 'لازم تضيف حجم واحد على الأقل' })
+  @ValidateNested({ each: true })
+  @Type(() => CreateMenuItemSizeDto)
+  sizes: CreateMenuItemSizeDto[];
 
-  @ApiProperty({ example: 'small', description: 'English size slug' })
-  @IsString()
-  @MaxLength(50)
-  slug: string;
+  // ================================= addons ========================================= //
+  // اختياري. بتوصل بنفس طريقة sizes كـ JSON string.
 
-  @ApiProperty({ example: 'صغير', description: 'Arabic size label' })
-  @IsString()
-  @MaxLength(50)
-  label: string;
-
-  @ApiProperty({ example: 12.0, description: 'Price for this size' })
-  @Type(() => Number)
-  @IsNumber({ maxDecimalPlaces: 2 })
-  @IsPositive()
-  price: number;
+  @ApiPropertyOptional({
+    type: [CreateMenuItemAddonDto],
+    description: 'الإضافات الاختيارية للوجبة',
+    example: [{ name: 'صوص ثوم', price: 5.5 }],
+  })
+  @Transform(toJsonArray)
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateMenuItemAddonDto)
+  addons?: CreateMenuItemAddonDto[];
 }
